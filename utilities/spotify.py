@@ -133,7 +133,7 @@ class Oauth:
         return token_info
 
 
-class User:  # Spotify user w discord user_id
+class User:  # Spotify user w user_id
     def __init__(self, user_id, token_info, bot_or_app):
         self.user_id = user_id
         self.token_info = token_info
@@ -151,7 +151,7 @@ class User:  # Spotify user w discord user_id
 
         if token_info:
             token_info = json.loads(token_info)
-            return cls(user_id, token_info, bot_or_app)
+            return cls(int(user_id), token_info, bot_or_app)
 
     @classmethod
     async def from_token(cls, token_info, bot_or_app, *, user_id=None):
@@ -163,9 +163,9 @@ class User:  # Spotify user w discord user_id
                 DO UPDATE SET token_info = $2
                 WHERE spotify_auth.user_id = $1;
                 """
-        await bot_or_app.cxn.execute(query, user_id, json.dumps(token_info))
+        await bot_or_app.cxn.execute(query, int(user_id), json.dumps(token_info))
 
-        return cls(token_info, user_id, bot_or_app)
+        return cls(int(user_id), token_info, bot_or_app)
 
     async def auth(self):
         access_token = await self.oauth.get_access_token(self.user_id, self.token_info)

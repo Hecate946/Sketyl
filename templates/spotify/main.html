@@ -1,0 +1,14 @@
+{% extends 'index.html' %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/spotify/main.css') }}" />
+{% endblock %}
+{% block body %}
+<div class="nav-scroller bg-body shadow-sm">
+    <nav class="nav nav-underline sub-nav" aria-label="Secondary navigation">
+      <a class="nav-link" href="{{url_for('spotify_top', spotify_type='tracks')}}">Top Tracks</a>
+      <a class="nav-link" href="{{url_for('spotify_top', spotify_type='artists')}}">Top Artists</a>
+      <a class="nav-link" href="{{url_for('spotify_top', spotify_type='genres')}}">Top Genres</a>
+      <a class="nav-link" href="{{url_for('spotify_recent')}}">Recent Tracks</a>
+    </nav>
+</div>
+{% endblock %}

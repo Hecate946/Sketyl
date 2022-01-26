@@ -8,7 +8,11 @@ class Utils:
 
     async def query(self, url, method="get", res_method="text", *args, **kwargs):
         async with getattr(self.session, method.lower())(url, *args, **kwargs) as res:
-            return await getattr(res, res_method)()
+            try:
+                return await getattr(res, res_method)()
+            except:
+                res = await getattr(res, "text")()
+                print(res)
 
     async def get(self, url, *args, **kwargs):
         return await self.query(url, "get", *args, **kwargs)

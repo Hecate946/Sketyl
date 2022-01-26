@@ -1,0 +1,94 @@
+{% extends 'spotify/main.html' %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/spotify/tables.css') }}" />
+{% endblock %}
+</head>
+{% block body %} 
+{{ super() }}
+<table class="table caption-top align-middle table-hover table-spacing">
+    <div class="title text-center">
+        <h1>
+        {{caption[0]}}
+        {% if caption[1] %}
+        <div class="dropdown">
+            <a id="time-select" class="dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">{{caption[1]}}</a>
+            <ul class="dropdown-menu" aria-labelledby="time-select">
+                <li><a class="dropdown-item" href="{{ request.path }}">four weeks</a></li>
+                <li><a class="dropdown-item" href="{{ request.path }}?time_range=medium_term">six months</a></li>
+                <li><a class="dropdown-item" href="{{ request.path }}?time_range=long_term">few years</a></li>
+            </ul>
+        </div>
+        </h1>
+        {% endif %}
+    </div>
+
+    {% if artist %}
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Cover</th>
+            <th scope="col">Artist</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for artist in data %}
+    <tr>
+        <th scope="row">{{artist.index}}</th>
+        <td class="small center">
+            <img class="cover" src="{{artist.image}}" >
+        </td>
+        <td>{{artist.name}}</td>
+    </tr>
+    </tbody>
+    {% endfor %}
+    {% elif genre %}
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Genre</th>
+            <th scope="col">Frequency</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for genre in data %} 
+        <tr>
+            <th scope="row">{{genre.index}}</th>
+            <td>{{genre.name}}</td>
+            <td>{{genre.percent}}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    {% else %}
+    <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Cover</th>
+          <th scope="col">Track</th>
+          <th scope="col">Artist</th>
+          <th scope="col">Duration</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for track in data %}
+        <tr>
+            <th scope="row">{{track.index}}</th>
+            <td><img class="cover" src="{{track.image}}"></td>
+            <td>{{track.name}}</td>
+            <td>{{track.artist}}</td>
+            <td>{{track.duration}}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    {% endif %}
+</table>
+<div class="text-center">
+    {% if track %}
+    <a href="{{ url_for('create_playlist', spotify_type='top')}}?time_range={{request.args.get('time_range', 'short_term')}}" class="btn btn-primary playlist-button" role="button" aria-pressed="true">Create Playlist</a>
+    {% else %}
+    <a href="{{ url_for('create_playlist', spotify_type='recent')}}" class="btn btn-primary playlist-button" role="button" aria-pressed="true">Create Playlist</a>
+    {% endif %}
+</div>
+<script src="{{ url_for('static', filename='js/spotify.js')}}" type="text/javascript"></script>
+{% endblock %}
+

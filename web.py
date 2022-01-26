@@ -29,8 +29,14 @@ class Sketyl(Quart):
         self.loop = asyncio.get_event_loop()
         asyncio.set_event_loop(self.loop)
 
+        kwargs = {
+            'command_timeout': 60,
+            'max_size': 20,
+            'min_size': 20,
+        }
+
         self.cxn = self.loop.run_until_complete(
-            asyncpg.create_pool(config.POSTGRES.uri)
+            asyncpg.create_pool(config.POSTGRES.uri, **kwargs)
         )
         self.loop.run_until_complete(self.initialize())
 
@@ -39,7 +45,8 @@ class Sketyl(Quart):
         self.secret_key = secrets.token_urlsafe(64)
 
     def run(self):
-        return super().run(host="0.0.0.0", port=3000, loop=self.loop)
+        super().run(host="0.0.0.0", port=3000, loop=self.loop)
+
 
     async def initialize(self):
         if not hasattr(self, "session"):
@@ -59,29 +66,29 @@ class Sketyl(Quart):
 
 app = Sketyl(__name__)
 
+# @app.teardown_appcontext
+# async def close(error):
+#     await app.cxn.close()
+#     print("Closed db connection.")
+#     await app.session.close()
+#     print("Closed aiohttp connection.")
 
 @app.route("/")
 async def index():
     user_id = request.cookies.get("user_id")
-    print(user_id)
-    if not user_id:
-        response = await make_response("Hello")
-        response.set_cookie("user_id", str(user_id))
-        return response
-    return "Hello"
+    return await render_template("index.html", user_id=user_id)
 
 
 @app.route("/spotify")
 async def _spotify():
-    return await render_template("spotify.html")
+    return await render_template("spotify/main.html")
 
 
 @app.route("/spotify/connect")
 async def spotify_connect():
     code = request.args.get("code")
     # We don't mind if they're re-authorizing, just give them the same id.
-    print(request.cookies.get("user_id"))
-    user_id = int(request.cookies.get("user_id", utils.generate_id()))
+    user_id = request.cookies.get("user_id")
 
     if not code:  # Need code, redirect user to spotify
         return redirect(spotify.Oauth(app).get_auth_url())
@@ -90,28 +97,46 @@ async def spotify_connect():
     if not token_info:  # Invalid code or user rejection, redirect them back.
         return redirect(spotify.Oauth(app).get_auth_url())
 
-    await spotify.User.from_token(token_info, app, user_id=user_id)  # Save user
-    response = await make_response(await render_template("/spotify/success.html"))
+    sp_user = await spotify.User.from_token(token_info, app, user_id=user_id)  # Save user
+    redirect_location = session.pop("referrer", url_for("_spotify"))
+    response = await make_response(redirect(redirect_location))
+    print("made response")
     response.set_cookie(
         "user_id",
-        str(user_id),
+        str(sp_user.user_id),
         expires=datetime.utcnow() + timedelta(days=365),
     )
+    print("set cookie")
+    return response
+
+@app.route("/spotify/disconnect")
+async def spotify_disconnect():
+    user_id = request.cookies.get("user_id")
+    if not user_id:
+        return "You are not logged in"
+
+    query = """
+            DELETE FROM spotify_auth
+            WHERE user_id = $1
+            """
+    await app.cxn.execute(query, int(user_id))
+    response = await make_response(redirect(url_for("_spotify")))
+    response.set_cookie("user_id", "", expires=0)
     return response
 
 
 @app.route("/spotify/recent")
 async def spotify_recent():
-    user_id = session.get("user_id")
+    user_id = request.cookies.get("user_id")
 
-    if not user_id:  # User is not logged in to discord, redirect them back
+    if not user_id:  # User is not logged in, redirect them back
         session["referrer"] = url_for(
             "spotify_recent"
         )  # So they'll send the user back here
-        return redirect(url_for("discord_login"))
+        return redirect(url_for("spotify_connect"))
 
-    user = await spotify.User.load(user_id, app)
-    if not user:
+    user = await spotify.User.from_id(int(user_id), app)
+    if not user: # Haven't connected their account.
         session["referrer"] = url_for(
             "spotify_recent"
         )  # So they'll send the user back here
@@ -173,16 +198,16 @@ async def playlists(playlist_id):
 
 @app.route("/spotify/top/<spotify_type>")
 async def spotify_top(spotify_type):
-    user_id = session.get("user_id")
+    user_id = request.cookies.get("user_id")
     time_range = request.args.get("time_range", "short_term")
 
-    if not user_id:  # User is not logged in to discord, redirect them back
+    if not user_id:  # User is not logged in, redirect them back
         session["referrer"] = url_for(
             "spotify_top", spotify_type=spotify_type, time_range=time_range
         )  # So they'll send the user back here
-        return redirect(url_for("discord_login"))
+        return redirect(url_for("spotify_connect"))
 
-    user = await spotify.User.load(user_id, app)
+    user = await spotify.User.from_id(user_id, app)
     if not user:
         session["referrer"] = url_for(
             "spotify_top", spotify_type=spotify_type, time_range=time_range
