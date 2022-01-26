@@ -219,7 +219,7 @@ async def create_playlist(spotify_type):
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
-    user = await spotify.User.load(user_id, app)
+    user = await spotify.User.from_id(user_id, app)
     if not user:
         session["referrer"] = url_for(
             "create_playlist", spotify_type=spotify_type, time_range=time_range
@@ -246,7 +246,7 @@ async def playlists(playlist_id):
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
-    user = await spotify.User.load(user_id, app)
+    user = await spotify.User.from_id(user_id, app)
     data = await user.get_playlist(playlist_id)
     if raw:
         return str(data)
