@@ -210,14 +210,14 @@ async def spotify_playlists():
 
 @app.route("/spotify/playlists/create/<spotify_type>")
 async def create_playlist(spotify_type):
-    user_id = session.get("user_id")
+    user_id = request.cookies.get("user_id")
     time_range = request.args.get("time_range", "short_term")
 
     if not user_id:  # User is not logged in to discord, redirect them back
         session["referrer"] = url_for(
             "create_playlist", spotify_type=spotify_type, time_range=time_range
         )  # So they'll send the user back here
-        return redirect(url_for("discord_login"))
+        return redirect(url_for("spotify_connect"))
 
     user = await spotify.User.load(user_id, app)
     if not user:
@@ -237,14 +237,14 @@ async def create_playlist(spotify_type):
 
 @app.route("/spotify/playlists/<playlist_id>")
 async def playlists(playlist_id):
-    user_id = session.get("user_id")
+    user_id = request.cookies.get("user_id")
     raw = request.args.get("raw", False)
 
     if not user_id:  # User is not logged in to discord, redirect them back
         session["referrer"] = url_for(
             "playlists", playlist_id=playlist_id, raw=raw
         )  # So they'll send the user back here
-        return redirect(url_for("discord_login"))
+        return redirect(url_for("spotify_connect"))
 
     user = await spotify.User.load(user_id, app)
     data = await user.get_playlist(playlist_id)
