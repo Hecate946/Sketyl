@@ -1,0 +1,107 @@
+{% extends '/spotify/main.html' %}
+{% block head %}
+{{ super() }}
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.19.1/dist/bootstrap-table.min.css">
+<script src="https://code.jquery.com/jquery.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
+{% endblock %}
+
+{% block body %}
+{{ super() }}
+
+<div class="container text-center">
+
+<table data-toggle="table" 
+       data-classes="table table-hover table-condensed"
+       data-striped="true"
+       data-sort-name="Quality"
+       data-sort-order="desc"
+       >
+    <thead>
+    <tr>
+        <th data-formatter="runningFormatter">Index</th>
+        <th class="col-xs-1" data-field="Product_Name" data-sortable="true">Product Name</th>
+        <th class="col-xs-1" data-field="Quality" data-sortable="true">Quality</th>
+        <th class="col-xs-6" data-field="Quantity" >Quantity</th>
+    </tr>
+    </thead>
+    <tbody>
+   <tr id="tr-id-2" class="tr-class-2">
+        <td></td>
+        <td>Wheat</td>
+        <td>Good</td>
+        <td>200 Bags</td>
+    </tr>
+    <tr id="tr-id-2" class="tr-class-2">
+        <td></td>
+        <td>Rice</td>
+        <td>Good</td>
+        <td>100 Bags</td>
+    </tr>
+    <tr id="tr-id-2" class="tr-class-2">
+        <td></td>
+        <td>Rice</td>
+        <td>Good</td>
+        <td>100 Bags</td>
+    </tr>
+    <tr id="tr-id-2" class="tr-class-2">
+        <td></td>
+        <td>Sugar</td>
+        <td>Prime</td>
+        <td>200 Bags</td>
+    </tr>            
+    <tr id="tr-id-2" class="tr-class-2">
+        <td></td>
+        <td>Maze</td>
+        <td>Fine</td>
+        <td>10 Packs</td>
+    </tr>            
+    <tr id="tr-id-2" class="tr-class-2">
+        <td></td>
+        <td>Sugar</td>
+        <td>Prime</td>
+        <td>200 Bags</td>
+    </tr> 
+    <tr id="tr-id-2" class="tr-class-2">
+        <td></td>
+        <td>Sugar</td>
+        <td>Prime</td>
+        <td>200 Bags</td>
+    </tr> 
+    <tr id="tr-id-2" class="tr-class-2">
+        <td></td>
+        <td>Sugar</td>
+        <td>Prime</td>
+        <td>200 Bags</td>
+    </tr> 
+    <tr id="tr-id-2" class="tr-class-2">
+        <td></td>
+        <td>Sugar</td>
+        <td>Prime</td>
+        <td>200 Bags</td>
+    </tr> 
+    <tr id="tr-id-2" class="tr-class-2">
+        <td></td>
+        <td>Sugar</td>
+        <td>Prime</td>
+        <td>200 Bags</td>
+    </tr> 
+    <tr id="tr-id-2" class="tr-class-2">
+        <td></td>
+        <td>Sugar</td>
+        <td>Prime</td>
+        <td>200 Bags</td>
+    </tr>     
+    </tbody>    
+</table>
+</div>
+
+<script>
+function runningFormatter(value, row, index) {
+    return index;
+}
+</script>
+
+{% endblock %}

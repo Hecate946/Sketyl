@@ -3,7 +3,7 @@
 {{ super() }}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/spotify/tables.css') }}" />
 {% endblock %}
-</head>
+
 {% block body %} 
 {{ super() }}
 <table class="table caption-top align-middle table-hover table-spacing">
@@ -26,22 +26,22 @@
     {% if artist %}
     <thead>
         <tr>
-            <th scope="col">#</th>
-            <th scope="col">Cover</th>
-            <th scope="col">Artist</th>
+            <th class="th-sm" scope="col">#</th>
+            <th class="th-sm" scope="col">Cover</th>
+            <th class="th-sm" scope="col">Artist</th>
         </tr>
     </thead>
     <tbody>
-    {% for artist in data %}
-    <tr>
-        <th scope="row">{{artist.index}}</th>
-        <td class="small center">
-            <img class="cover" src="{{artist.image}}" >
-        </td>
-        <td>{{artist.name}}</td>
-    </tr>
+        {% for artist in data %}
+        <tr>
+            <th scope="row">{{artist.index}}</th>
+            <td class="small center">
+                <img class="cover" src="{{artist.image}}" >
+            </td>
+            <td>{{artist.name}}</td>
+        </tr>
     </tbody>
-    {% endfor %}
+        {% endfor %}
     {% elif genre %}
     <thead>
         <tr>
@@ -51,13 +51,60 @@
         </tr>
     </thead>
     <tbody>
-    {% for genre in data %} 
+        {% for genre in data %} 
         <tr>
             <th scope="row">{{genre.index}}</th>
             <td>{{genre.name}}</td>
             <td>{{genre.percent}}</td>
         </tr>
-    {% endfor %}
+        {% endfor %}
+    {% elif playlist %}
+    </tbody>
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Cover</th>
+            <th scope="col">Name</th>
+            <th scope="col">Owner</th>
+            <th scope="col">Type</th>
+            <th scope="col">Tracks</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for playlist in data %}
+        <tr>
+            <th scope="row">{{playlist.index}}</th>
+            <td><img class="cover" src="{{playlist.image}}"></td>
+            <td>{{playlist.name}}</td>
+            <td>{{playlist.owner}}</td>
+            <td>{{playlist.type}}</td>
+            <td>{{playlist.tracks}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    {% elif album %}
+    </tbody>
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Cover</th>
+            <th scope="col">Name</th>
+            <th scope="col">Artist</th>
+            <th scope="col">Release</th>
+            <th scope="col">Tracks</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for album in data %}
+        <tr>
+            <th scope="row">{{album.index}}</th>
+            <td><img class="cover" src="{{album.image}}"></td>
+            <td>{{album.name}}</td>
+            <td>{{album.artist}}</td>
+            <td>{{album.release}}</td>
+            <td>{{album.tracks}}</td>
+        </tr>
+        {% endfor %}
     </tbody>
     {% else %}
     <thead>
@@ -70,7 +117,7 @@
         </tr>
     </thead>
     <tbody>
-    {% for track in data %}
+        {% for track in data %}
         <tr>
             <th scope="row">{{track.index}}</th>
             <td><img class="cover" src="{{track.image}}"></td>
@@ -78,9 +125,8 @@
             <td>{{track.artist}}</td>
             <td>{{track.duration}}</td>
         </tr>
-    {% endfor %}
+        {% endfor %}
     </tbody>
-    {% endif %}
 </table>
 <div class="text-center">
     {% if track %}
@@ -89,6 +135,7 @@
     <a href="{{ url_for('create_playlist', spotify_type='recent')}}" class="btn btn-primary playlist-button" role="button" aria-pressed="true">Create Playlist</a>
     {% endif %}
 </div>
+{% endif %}
 <script src="{{ url_for('static', filename='js/spotify.js')}}" type="text/javascript"></script>
 {% endblock %}
 

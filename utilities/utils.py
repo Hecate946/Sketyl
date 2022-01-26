@@ -10,6 +10,7 @@ def generate_id():
     encoded = str((sketyl_millis << 17) + (2 ** 17))
     return int(encoded + random_id)
 
+
 def parse_duration(duration: int):
     """
     Helper function to get visually pleasing

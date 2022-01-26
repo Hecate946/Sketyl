@@ -3,4 +3,5 @@
 *.DS_Store
 *__pycache__
 *.sock
+*.0
 config.py
