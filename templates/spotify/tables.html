@@ -66,8 +66,8 @@
             <th scope="col">Cover</th>
             <th scope="col">Name</th>
             <th scope="col">Owner</th>
-            <th scope="col">Type</th>
-            <th scope="col">Tracks</th>
+            <th class="unseen" scope="col">Type</th>
+            <th class="unseen" scope="col">Tracks</th>
         </tr>
     </thead>
     <tbody>
@@ -77,8 +77,8 @@
             <td><img class="cover" src="{{playlist.image}}"></td>
             <td>{{playlist.name}}</td>
             <td>{{playlist.owner}}</td>
-            <td>{{playlist.type}}</td>
-            <td>{{playlist.tracks}}</td>
+            <td class="unseen">{{playlist.type}}</td>
+            <td class="unseen">{{playlist.tracks}}</td>
         </tr>
         {% endfor %}
     </tbody>
@@ -90,8 +90,8 @@
             <th scope="col">Cover</th>
             <th scope="col">Name</th>
             <th scope="col">Artist</th>
-            <th scope="col">Release</th>
-            <th scope="col">Tracks</th>
+            <th class="unseen" scope="col">Release</th>
+            <th class="unseen" scope="col">Tracks</th>
         </tr>
     </thead>
     <tbody>
@@ -101,8 +101,8 @@
             <td><img class="cover" src="{{album.image}}"></td>
             <td>{{album.name}}</td>
             <td>{{album.artist}}</td>
-            <td>{{album.release}}</td>
-            <td>{{album.tracks}}</td>
+            <td class="unseen">{{album.release}}</td>
+            <td class="unseen">{{album.tracks}}</td>
         </tr>
         {% endfor %}
     </tbody>
@@ -113,7 +113,7 @@
           <th scope="col">Cover</th>
           <th scope="col">Track</th>
           <th scope="col">Artist</th>
-          <th scope="col">Duration</th>
+          <th class="unseen" scope="col">Duration</th>
         </tr>
     </thead>
     <tbody>
@@ -123,7 +123,7 @@
             <td><img class="cover" src="{{track.image}}"></td>
             <td>{{track.name}}</td>
             <td>{{track.artist}}</td>
-            <td>{{track.duration}}</td>
+            <td class="unseen">{{track.duration}}</td>
         </tr>
         {% endfor %}
     </tbody>

@@ -99,3 +99,7 @@
     margin-left: auto;
     margin-right: auto;
   } */
+ 
+@media only screen and (max-width: 500px) {
+	.unseen {display: none;}
+}
