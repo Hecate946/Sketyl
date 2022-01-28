@@ -9,9 +9,40 @@ $(function(){
     });
 });
 
+// $(function(){
+//     $(".clickable-row").click(function() {
+//         console.log("cliick")
+//         window.location = $(this).data("href");
+//     });
+// });
+
 $(function(){
-    $(".clickable-row").click(function() {
-        console.log("cliick")
-        window.location = $(this).data("href");
+    $(document).on("click", ".play-pause", function() {
+        window.audio = $(this).children("audio")
+        if (window.audio[0].paused) {
+            play()
+        }
+        else {
+            pause()
+        }
     });
 });
+
+$("audio").on({
+    play:function(){ // the audio is playing!
+        $(window.audio).siblings("i").removeClass("fa-play").addClass("fa-pause")
+    },
+    pause:function(){ // the audio is paused!
+        $(window.audio).siblings("i").removeClass("fa-pause").addClass("fa-play")
+    },
+})
+function play() {
+    $("audio").trigger("pause") // pause other audios
+    $("audio").siblings("i").removeClass("fa-pause").addClass("fa-play")
+
+    window.audio.trigger("play");
+}
+function pause() {
+    window.audio.trigger("pause");
+}
+

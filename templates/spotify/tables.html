@@ -120,7 +120,17 @@
         {% for track in data %}
         <tr class="clickable-row" data-href="{{url_for('spotify_track', track_id=track.id)}}">
             <th scope="row">{{track.index}}</th>
-            <td><img class="cover" src="{{track.image}}"></td>
+            <td>
+                <div class="container">
+                    <img class="cover" src="{{track.image}}">
+                    <div class="overlay">
+                        <span class="icon play-pause">
+                            <i class="fa fa-play"></i>
+                            <audio class="audio" src="{{track.preview}}"></audio>
+                        </span>
+                    </div>
+                </div>
+            </td>
             <td>{{track.name}}</td>
             <td>{{track.artist}}</td>
             <td class="unseen">{{track.duration}}</td>

@@ -40,6 +40,9 @@ class CONSTANTS:
         "playlist-read-collaborative",
         "playlist-read-private",
         "playlist-modify-public",
+
+        "streaming",
+        # "user-read-birthdate",
     ]
 
 
@@ -167,8 +170,11 @@ class User:  # Spotify user w user_id
 
         return cls(int(user_id), token_info, bot_or_app)
 
+    async def get_token(self):
+        return await self.oauth.get_access_token(self.user_id, self.token_info)
+
     async def auth(self):
-        access_token = await self.oauth.get_access_token(self.user_id, self.token_info)
+        access_token = await self.get_token()
 
         headers = {
             "Authorization": f"Bearer {access_token}",
@@ -566,6 +572,7 @@ class Formatting:
                 "id": track["id"],
                 "index": index,
                 "image": self.get_image(track["album"]),
+                "preview": track["preview_url"],
                 "name": track["name"],
                 "artist": ", ".join([artist["name"] for artist in track["artists"]]),
                 "duration": utils.parse_duration(track["duration_ms"] / 1000),
@@ -578,6 +585,7 @@ class Formatting:
             {
                 "index": index,
                 "image": self.get_image(item["track"]["album"]),
+                "preview": item["track"]["preview_url"],
                 "name": item["track"]["name"],
                 "artist": ", ".join(
                     [artist["name"] for artist in item["track"]["artists"]]
@@ -592,6 +600,7 @@ class Formatting:
             {
                 "index": index,
                 "image": self.get_image(item["track"]["album"]),
+                "preview": item["track"]["preview_url"],
                 "name": item["track"]["name"],
                 "artist": ", ".join(
                     [artist["name"] for artist in item["track"]["artists"]]

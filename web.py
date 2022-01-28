@@ -197,6 +197,13 @@ async def spotify_liked():
     return html
 
 
+@app.route("/p")
+async def p():
+    user_id = request.cookies.get("user_id")
+    user = await spotify.User.from_id(user_id, app)
+    token = await user.get_token()
+    return await render_template('spotify/player.html', token=token)
+
 @app.route("/t")
 async def t():
     #return await render_template("spotify/pie.html", labels=["2", "1", "3", "4", "5"])
