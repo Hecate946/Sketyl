@@ -20,7 +20,7 @@ from quart import (
 
 import config
 
-from utilities import http, spotify, utils, emailer
+from utilities import http, spotify, constants
 
 
 class Sketyl(Quart):
@@ -128,6 +128,26 @@ async def spotify_disconnect():
     return response
 
 
+@app.route("/spotify/track/<track_id>")
+async def spotify_track(track_id):
+    user_id = request.cookies.get("user_id")
+
+    if not user_id:  # User is not logged in, redirect them back
+        session["referrer"] = url_for(
+            "spotify_track", track_id=track_id
+        )  # So they'll send the user back here
+        return redirect(url_for("spotify_connect"))
+
+    user = await spotify.User.from_id(int(user_id), app)
+    if not user:  # Haven't connected their account.
+        session["referrer"] = url_for(
+            "spotify_track", track_id=track_id
+        )  # So they'll send the user back here
+        return redirect(url_for("spotify_connect"))
+
+    data = await user.get_track(track_id)
+    return str(data)
+
 @app.route("/spotify/recent")
 async def spotify_recent():
     user_id = request.cookies.get("user_id")
@@ -148,14 +168,61 @@ async def spotify_recent():
     data = await user.get_recent_tracks()
     tracks = spotify.formatting.recent_tracks(data["items"])
     caption = spotify.formatting.get_caption("recents")
-    html = await render_template("spotify/tables.html", data=tracks, caption=caption)
+    html = await render_template("spotify/tables.html", recent=True, data=tracks, caption=caption)
+    # await emailer.send_email("hecate946@gmail.com", html=html)
+    return html
+
+@app.route("/spotify/liked")
+async def spotify_liked():
+    user_id = request.cookies.get("user_id")
+
+    if not user_id:  # User is not logged in, redirect them back
+        session["referrer"] = url_for(
+            "spotify_liked"
+        )  # So they'll send the user back here
+        return redirect(url_for("spotify_connect"))
+
+    user = await spotify.User.from_id(int(user_id), app)
+    if not user:  # Haven't connected their account.
+        session["referrer"] = url_for(
+            "spotify_liked"
+        )  # So they'll send the user back here
+        return redirect(url_for("spotify_connect"))
+
+    data = await user.get_all_liked_tracks()
+    tracks = spotify.formatting.liked_tracks(data)
+    caption = ("Showing your Liked Songs on Spotify.",)
+    html = await render_template("spotify/tables.html", liked=True, data=tracks, caption=caption)
     # await emailer.send_email("hecate946@gmail.com", html=html)
     return html
 
 
 @app.route("/t")
 async def t():
-    return await render_template("/spotify/playlists.html")
+    #return await render_template("spotify/pie.html", labels=["2", "1", "3", "4", "5"])
+    user_id = request.cookies.get("user_id")
+
+    if not user_id:  # User is not logged in, redirect them back
+        session["referrer"] = url_for(
+            "spotify_albums"
+        )  # So they'll send the user back here
+        return redirect(url_for("spotify_connect"))
+
+    user = await spotify.User.from_id(int(user_id), app)
+    if not user:  # Haven't connected their account.
+        session["referrer"] = url_for(
+            "spotify_albums"
+        )  # So they'll send the user back here
+        return redirect(url_for("spotify_connect"))
+
+    decades = await user.get_decades()
+    return await render_template(
+        "/spotify/charts.html",
+        decades=decades,
+        labels = list(decades.keys()),
+        data=[len(decades[decade]) for decade in decades],
+        colors=constants.colors[:len(decades.keys())]
+    )
 
 
 @app.route("/spotify/albums")
@@ -231,6 +298,9 @@ async def create_playlist(spotify_type):
 
     if spotify_type == "top":
         await user.create_top_tracks_playlist(time_range=time_range)
+
+    if spotify_type == "liked":
+        await user.create_liked_tracks_playlist()
 
     return "created playlist"
 

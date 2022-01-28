@@ -1,0 +1,12 @@
+.chart-container {
+    width: 80%;
+    height: 580px;
+    margin: 0 auto;
+  }
+  
+  .pie-chart-container,
+  .doughnut-chart-container {
+    height: 560px;
+    width: 560px;
+    float: left;
+  }

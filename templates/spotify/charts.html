@@ -1,0 +1,88 @@
+{% extends 'spotify/main.html' %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/spotify/tables.css') }}" />
+{% endblock %}
+
+{% block body %} 
+{{ super() }}
+
+<div class="chart-container">
+    <div class="doughnut-chart-container">
+      <canvas id="chartcanvas"></canvas>
+    </div>
+</div>
+
+<div class="accordion" id="decades">
+    {% for decade, tracks in decades.items() %}
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading{{decade}}">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{decade}}" aria-expanded="false" aria-controls="collapse{{decade}}">
+          {{decade}}
+        </button>
+      </h2>
+      <div id="collapse{{decade}}" class="accordion-collapse collapse" aria-labelledby="heading{{decade}}" data-bs-parent="#decades">
+        <div class="accordion-body">
+            <table class="table table-responsive caption-top align-middle table-hover table-spacing">
+              <tbody>
+                {% for track in tracks %}
+                <tr class="clickable-row" data-href="{{url_for('spotify_track', track_id=track.id)}}">
+                    <th scope="row">{{track.index}}</th>
+                    <td><img class="cover" src="{{track.image}}"></td>
+                    <td>{{track.name}}</td>
+                    <td>{{track.artist}}</td>
+                    <td class="unseen">{{track.duration}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.0/Chart.min.js"></script>
+<script>
+    $(function(){
+
+    var ctx = $("#chartcanvas");
+
+    var data = {
+    labels: {{ labels | safe }},
+    datasets: [
+        {
+            data: {{data | safe }},
+            backgroundColor: {{colors | safe}},
+        }
+    ]
+    };
+
+    var options = {
+        responsive: true,
+        tooltips: {
+          callbacks: {
+            label: function(tooltipItem, data) {
+              return data['labels'][tooltipItem['index']] + ': ' + data['datasets'][0]['data'][tooltipItem['index']] + '%';
+            }
+          }
+        },
+        legend: {
+            display: true,
+            position: "right",
+            align: "center",
+            labels: {
+                fontColor: "#333",
+                fontSize: 16
+            }
+        }
+    };
+
+    var chart = new Chart(ctx, {
+            type: "doughnut",
+            data: data,
+            options: options
+        });
+
+    });
+  </script>
+  {% endblock %}

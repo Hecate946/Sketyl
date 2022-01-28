@@ -118,7 +118,7 @@
     </thead>
     <tbody>
         {% for track in data %}
-        <tr>
+        <tr class="clickable-row" data-href="{{url_for('spotify_track', track_id=track.id)}}">
             <th scope="row">{{track.index}}</th>
             <td><img class="cover" src="{{track.image}}"></td>
             <td>{{track.name}}</td>
@@ -131,8 +131,10 @@
 <div class="text-center">
     {% if track %}
     <a href="{{ url_for('create_playlist', spotify_type='top')}}?time_range={{request.args.get('time_range', 'short_term')}}" class="btn btn-primary playlist-button" role="button" aria-pressed="true">Create Playlist</a>
-    {% else %}
+    {% elif recent %}
     <a href="{{ url_for('create_playlist', spotify_type='recent')}}" class="btn btn-primary playlist-button" role="button" aria-pressed="true">Create Playlist</a>
+    {% elif liked %}
+    <a href="{{ url_for('create_playlist', spotify_type='liked')}}" class="btn btn-primary playlist-button" role="button" aria-pressed="true">Create Playlist</a>
     {% endif %}
 </div>
 {% endif %}

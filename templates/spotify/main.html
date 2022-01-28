@@ -4,10 +4,11 @@
 {% endblock %}
 {% block body %}
 <div class="nav-scroller bg-body shadow-sm">
-    <nav class="nav nav-underline sub-nav" aria-label="Secondary navigation">
+    <nav class="nav justify-content-center nav-underline sub-nav" aria-label="Secondary navigation">
       <a class="nav-link" href="{{url_for('spotify_top', spotify_type='tracks')}}">Top Tracks</a>
       <a class="nav-link" href="{{url_for('spotify_top', spotify_type='artists')}}">Top Artists</a>
       <a class="nav-link" href="{{url_for('spotify_top', spotify_type='genres')}}">Top Genres</a>
+      <a class="nav-link" href="{{url_for('spotify_liked')}}">Liked Tracks</a>
       <a class="nav-link" href="{{url_for('spotify_recent')}}">Recent Tracks</a>
       <a class="nav-link" href="{{url_for('spotify_playlists')}}">Playlists</a>
       <a class="nav-link" href="{{url_for('spotify_albums')}}">Albums</a>

@@ -8,3 +8,10 @@ $(function(){
         }
     });
 });
+
+$(function(){
+    $(".clickable-row").click(function() {
+        console.log("cliick")
+        window.location = $(this).data("href");
+    });
+});

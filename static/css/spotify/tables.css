@@ -3,6 +3,13 @@
   border: 2px solid #60778C;
 }
 
+.piechart {
+  width: 200px;
+  border: 2px solid #60778C;
+  border-radius: 100px;
+  
+}
+
 .playlist-button {
   background-color: #15B8AE;
   border-color: #017b91;
@@ -38,67 +45,31 @@
   margin-right: auto;
   margin-bottom: 50px;
 }
-/* * {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    background-color: #111519;
-  }
-  table {
-    color: #edf2f4;
-    margin-left: auto;
-    margin-right: auto;
-    width: 70%;
-  }
-  caption {
-    padding: 70px;
-    font-size: 25px;
-    font-weight: bold;
-  }
-  th,
-  td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  th {
-    font-size: 20px;
-  }
-  
-  tr:not(:first-child):hover {
-    background-color: rgba(0, 0, 0, 0.5);
-  }
-  
-  .small {
-    width: 20px;
-  }
-  
-  .center {
-    text-align: center;
-  }
-  
-  img {
-    width: 50px;
-    height: 50px;
-    padding: 0;
-  }
-  
-  
-  .buttons {
-    display: block;
-    width: 20%;
-    height: 50px;
-    background: #017b91;
-    padding: 10px;
-    text-align: center;
-    border-radius: 5px;
-    color: white;
-    font-weight: bold;
-    line-height: 30px;
-    margin-top: 50px;
-    margin-bottom: 60px;
-    margin-left: auto;
-    margin-right: auto;
-  } */
+
+.clickable-row {
+  cursor: pointer;
+}
+
+.clickable-row:hover {
+  background-color: rgba(203, 230, 255, 0.5);
+}
+
+.clickable-row:active {
+  background-color: rgba(151, 181, 209, 0.5);
+}
+
+.chart-container {
+  width: 80%;
+  height: 580px;
+  margin: 0 auto;
+}
+
+.pie-chart-container,
+.doughnut-chart-container {
+  height: 560px;
+  width: 560px;
+  float: left;
+}
  
 @media only screen and (max-width: 500px) {
 	.unseen {display: none;}
