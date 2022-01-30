@@ -18,11 +18,17 @@ $(function(){
 
 $(function(){
     $(document).on("click", ".play-pause", function() {
-        window.audio = $(this).children("audio")
-        if (window.audio[0].paused) {
+        var audio = $(this).children("audio")
+        if (audio[0].paused) {
+            if (window.audio !== undefined) {
+                // audio already existed, pause it.
+                pause()
+            }
+            window.audio = audio
             play()
         }
         else {
+            window.audio = audio
             pause()
         }
     });
@@ -38,12 +44,18 @@ $("audio").on({
 })
 
 function play() {
-    $("audio").trigger("pause") // pause other audios
-    $("audio").siblings("i").removeClass("fa-pause").addClass("fa-play")
-
-    window.audio.trigger("play");
+    $(window.audio).siblings("i").removeClass("fa-play").addClass("fa-pause")
+    console.log($(window.audio[0]).attr("src"))
+    if ($(window.audio[0]).attr("src")) { 
+        window.audio.trigger("play")
+    }
+    else {
+        alert("Audio preview unavailable for this track.")
+        $(window.audio).siblings("i").removeClass("fa-pause").addClass("fa-play")
+    }
 }
 function pause() {
+    $(window.audio).siblings("i").removeClass("fa-pause").addClass("fa-play")
     window.audio.trigger("pause");
 }
 
@@ -53,9 +65,6 @@ $(".table-sort").on("change", function() {
     rows.sort(function(a, b) {
         var trackA = $(a).data("track")
         var trackB = $(b).data("track")
-
-        console.log(typeof trackB)
-        console.log(trackB)
 
         if (selection == "artist") {
             var valueA = trackA["artists"][0]["name"].toLowerCase()
@@ -88,25 +97,21 @@ $(".table-sort").on("change", function() {
         }
 
         if (selection == "tempo") {
-            console.log(trackA.audio_features)
             var valueA = trackA["audio_features"]["tempo"]
             var valueB = trackB.audio_features.tempo
         }
 
         if (selection == "danceability") {
-            console.log(trackA.audio_features)
             var valueA = trackA.audio_features.danceability
             var valueB = trackB.audio_features.danceability
         }
 
         if (selection == "valence") {
-            console.log(trackA.audio_features)
             var valueA = trackA.audio_features.valence
             var valueB = trackB.audio_features.valence
         }
 
         if (selection == "energy") {
-            console.log(trackA.audio_features)
             var valueA = trackA.audio_features.energy
             var valueB = trackB.audio_features.energy
         }

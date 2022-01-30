@@ -185,10 +185,11 @@ async def spotify_recent():
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
-    data = await user.get_recent_tracks()
-    tracks = spotify.formatting.recent_tracks(data["items"])
-    caption = spotify.formatting.get_caption("recents")
-    html = await render_template("spotify/tables.html", recent=True, data=tracks, caption=caption)
+    tracks = await user.get_recent_tracks()
+    features = await user.get_all_audio_features([i["track"]["id"] for i in tracks["items"]])
+    data = spotify.formatting.recent_tracks(tracks["items"], features)
+    caption = "Recent Tracks"
+    html = await render_template("spotify/tracks.html", recent=True, tracks=tracks["items"], data=data, caption=caption)
     # await emailer.send_email("hecate946@gmail.com", html=html)
     return html
 
@@ -209,10 +210,11 @@ async def spotify_liked():
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
-    data = await user.get_all_liked_tracks()
-    tracks = spotify.formatting.liked_tracks(data)
-    caption = ("Showing your Liked Songs on Spotify.",)
-    html = await render_template("spotify/tables.html", liked=True, data=tracks, caption=caption)
+    tracks = await user.get_all_liked_tracks()
+    features = await user.get_all_audio_features([i["track"]["id"] for i in tracks])
+    data = spotify.formatting.liked_tracks(tracks, features)
+    caption = "Liked Tracks"
+    html = await render_template("spotify/tracks.html", liked=True, tracks=tracks, data=data, caption=caption)
     # await emailer.send_email("hecate946@gmail.com", html=html)
     return html
 
@@ -406,11 +408,11 @@ async def spotify_top(spotify_type):
 
     if spotify_type == "tracks":
         tracks = await user.get_all_top_tracks(time_range=time_range)
-        features = await user.get_audio_features([t["id"] for t in tracks])
-        data = spotify.formatting.top_tracks(tracks, features["audio_features"])
+        features = await user.get_all_audio_features([t["id"] for t in tracks])
+        data = spotify.formatting.top_tracks(tracks, features)
         caption = "Top Tracks"
         return await render_template(
-            "spotify/tracks.html", track=True, data=data, caption=caption, tracks=json.dumps(data)
+            "spotify/tracks.html", top=True, data=data, caption=caption, tracks=json.dumps(data)
         )
 
     if spotify_type == "genres":

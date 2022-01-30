@@ -10,11 +10,13 @@
     <div class="header d-flex flex-wrap">
         <div class="p-2">
             <h3 class="table-name">{{caption}}</h3>
+            {% if top %}
             <div class="time-select-buttons">
                 <a href="{{ request.path }}?time_range=short_term" class="link-secondary">Four Weeks</a>
                 <a href="{{ request.path }}?time_range=medium_term" class="link-secondary">Six Months</a>
                 <a href="{{ request.path }}?time_range=long_term" class="link-secondary">All Time</a>
             </div>
+            {% endif %}
         </div>
         <div class="ms-auto p-2 d-flex align-items-end select-box">
             <select class="form-select form-select-sm table-sort">
@@ -70,7 +72,7 @@
             </tbody>
         </table>
         <div class="d-flex align-items-center justify-content-center">
-            {% if track %}
+            {% if top %}
             <a href="{{ url_for('create_playlist', spotify_type='top')}}?time_range={{request.args.get('time_range', 'short_term')}}" class="btn btn-primary playlist-button" role="button" aria-pressed="true">Create Playlist</a>
             {% elif recent %}
             <a href="{{ url_for('create_playlist', spotify_type='recent')}}" class="btn btn-primary playlist-button" role="button" aria-pressed="true">Create Playlist</a>

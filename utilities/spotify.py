@@ -249,7 +249,19 @@ class User:  # Spotify user w user_id
     async def get_audio_features(self, track_ids):
         params = {"ids": ",".join(track_ids)}
         query = urlencode(params)
-        return await self.get(CONSTANTS.API_URL + "audio-features?" + query) 
+        return await self.get(CONSTANTS.API_URL + "audio-features?" + query)
+
+    async def get_all_audio_features(self, track_ids):
+        audio_features = []
+        while track_ids:
+            batch = track_ids[:100]
+            batch_features = await self.get_audio_features(batch)
+            audio_features.extend(batch_features["audio_features"])
+            track_ids = track_ids[100:]
+        print(len(audio_features))
+        return audio_features
+        
+
 
     async def get_top_tracks(self, limit=50, time_range="short_term", *, offset=0):
         params = {"limit": limit, "time_range": time_range, "offset": offset}
@@ -609,7 +621,7 @@ class Formatting:
                 "id": track["id"],
                 "index": index,
                 "image": self.get_image(track["album"]),
-                "preview": track["preview_url"],
+                "preview": track["preview_url"] or "", # Sometimes tracks are unavailable
                 "name": track["name"],
                 "artists": [{"name": artist['name'], "id": artist['id']} for artist in track["artists"]],
                 "duration": utils.parse_duration(track["duration_ms"] / 1000),
@@ -633,34 +645,36 @@ class Formatting:
             for index, track in enumerate(tracks, start=1)
         ]
 
-    def liked_tracks(self, data):
+    def liked_tracks(self, data, audio_features):
         return [
             {
+                "id": item["track"]["id"],
                 "index": index,
                 "image": self.get_image(item["track"]["album"]),
-                "preview": item["track"]["preview_url"],
+                "preview": item["track"]["preview_url"] or "",
                 "name": item["track"]["name"],
-                "artist": ", ".join(
-                    [artist["name"] for artist in item["track"]["artists"]]
-                ),
+                "artists": [{"name": artist['name'], "id": artist['id']} for artist in item["track"]["artists"]],
                 "duration": utils.parse_duration(item["track"]["duration_ms"] / 1000),
+                "album": item["track"]["album"]["name"],
+                "json": json.dumps(dict(item["track"], rank=index, audio_features=features))
             }
-            for index, item in enumerate(data, start=1)
+            for index, (item, features) in enumerate(zip(data, audio_features), start=1)
         ]
 
-    def recent_tracks(self, data):
+    def recent_tracks(self, data, audio_features):
         return [
             {
+                "id": item["track"]["id"],
                 "index": index,
                 "image": self.get_image(item["track"]["album"]),
-                "preview": item["track"]["preview_url"],
+                "preview": item["track"]["preview_url"] or "",
                 "name": item["track"]["name"],
-                "artist": ", ".join(
-                    [artist["name"] for artist in item["track"]["artists"]]
-                ),
+                "artists": [{"name": artist['name'], "id": artist['id']} for artist in item["track"]["artists"]],
                 "duration": utils.parse_duration(item["track"]["duration_ms"] / 1000),
+                "album": item["track"]["album"]["name"],
+                "json": json.dumps(dict(item["track"], rank=index, audio_features=features))
             }
-            for index, item in enumerate(data, start=1)
+            for index, (item, features) in enumerate(zip(data, audio_features), start=1)
         ]
 
     def top_artists(self, data):
