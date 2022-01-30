@@ -2,10 +2,6 @@
   font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 
-.profile-image {
-  width: 50px;
-}
-
 .playlist-button {
   background-color: #15b8ae;
   border-color: #017b91;
@@ -14,6 +10,16 @@
 .playlist-button:hover {
   background-color: #017b91;
   border-color: #017b91;
+}
+
+.play-pause {
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+
+.play-pause:hover {
+    cursor: pointer;
 }
 
 .table-box {
