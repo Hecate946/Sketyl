@@ -25,29 +25,28 @@
 }
 
 .table-name {
-    font-weight: 200px;
-    color: #edf2f4;
+  font-weight: 200px;
+  color: #edf2f4;
 }
 
 .time-select-buttons {
-    color:#60778c;
+  color: #60778c;
 }
 
 .time-select-buttons .active {
-    color: #cacdd1
+  color: #cacdd1;
 }
 
 .time-select-buttons a {
-    padding-right: 10px;
+  padding-right: 10px;
 }
-
 
 .table {
   color: #edf2f4;
 }
 
 .rows:hover {
-    background-color: #ffffff20;
+  background-color: #ffffff20;
 }
 
 .container {
@@ -101,16 +100,19 @@
   opacity: 1;
 }
 
-@media only screen and (max-width: 500px) {
+@media only screen and (max-width: 1000px) {
   .unseen {
     display: none;
   }
   .table-box {
-      width: 100%;
-      padding-left: 10px;
-      padding-right: 10px;
+    width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
   }
   .select-box {
-      margin-left: 0;
+    justify-content: start;
+  }
+  .select-box select {
+    width: 100%;
   }
 }

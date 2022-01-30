@@ -16,21 +16,19 @@
                 <a href="{{ request.path }}?time_range=long_term" class="link-secondary">All Time</a>
             </div>
         </div>
-        <div class="ms-auto p-2 d-flex align-items-end">
-            <div class="select-box">
-                <select class="form-select-sm">
-                    <option selected value="affinity">Sort by track affinity</option>
-                    <option value="name">Sort by track name</option>
-                    <option value="artist">Sort by artists</option>
-                    <option value="album">Sort by album</option>
-                    <option value="duration">Sort by track length (short to long)</option>
-                    <option value="popularity">Sort by track popularity (least to most)</option>
-                    <option value="tempo">Sort by track tempo (slowest to fastest)</option>
-                    <option value="danceability">Sort by danceability (least to most)</option>
-                    <option value="valence">Sort by mood (sad to happy)</option>
-                    <option value="energy">Sort by energy (least to most)</option>
-                </select>
-            </div>
+        <div class="ms-auto p-2 d-flex align-items-end select-box">
+            <select class="form-select form-select-sm">
+                <option selected value="affinity">Sort by track affinity</option>
+                <option value="name">Sort by track name</option>
+                <option value="artist">Sort by artists</option>
+                <option value="album">Sort by album</option>
+                <option value="duration">Sort by track length (short to long)</option>
+                <option value="popularity">Sort by track popularity (least to most)</option>
+                <option value="tempo">Sort by track tempo (slowest to fastest)</option>
+                <option value="danceability">Sort by danceability (least to most)</option>
+                <option value="valence">Sort by mood (sad to happy)</option>
+                <option value="energy">Sort by energy (least to most)</option>
+            </select>
         </div>
     </div>
     <table class="table align-middle">
