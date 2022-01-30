@@ -6,6 +6,12 @@
 
 {% block body %} 
 {{ super() }}
+<select class="form-select table-sort" aria-label="Default select example">
+    <option selected>Open this select menu</option>
+    <option value="artists">Artists</option>
+    <option value="2">Two</option>
+    <option value="3">Three</option>
+  </select>
 <table class="table table-responsive caption-top align-middle table-hover table-spacing">
     <div class="title text-center">
         <h1>
@@ -23,7 +29,7 @@
         {% endif %}
     </div>
 
-    {% if artist %}
+    {% if artists %}
     <thead>
         <tr>
             <th class="th-sm" scope="col">#</th>
@@ -36,13 +42,13 @@
         <tr>
             <th scope="row">{{artist.index}}</th>
             <td class="small center">
-                <img class="cover" src="{{artist.image}}" >
+                <img class="profile-image" src="{{artist.image}}" >
             </td>
             <td>{{artist.name}}</td>
         </tr>
     </tbody>
         {% endfor %}
-    {% elif genre %}
+    {% elif genres %}
     <thead>
         <tr>
             <th scope="col">#</th>
@@ -58,7 +64,7 @@
             <td>{{genre.percent}}</td>
         </tr>
         {% endfor %}
-    {% elif playlist %}
+    {% elif playlists %}
     </tbody>
     <thead>
         <tr>
@@ -74,7 +80,9 @@
         {% for playlist in data %}
         <tr>
             <th scope="row">{{playlist.index}}</th>
-            <td><img class="cover" src="{{playlist.image}}"></td>
+            <td class="small center">
+                <img class="profile-image" src="{{playlist.image}}" >
+            </td>
             <td>{{playlist.name}}</td>
             <td>{{playlist.owner}}</td>
             <td class="unseen">{{playlist.type}}</td>
@@ -82,7 +90,7 @@
         </tr>
         {% endfor %}
     </tbody>
-    {% elif album %}
+    {% elif albums %}
     </tbody>
     <thead>
         <tr>
@@ -98,8 +106,10 @@
         {% for album in data %}
         <tr>
             <th scope="row">{{album.index}}</th>
-            <td><img class="cover" src="{{album.image}}"></td>
-            <td>{{album.name}}</td>
+            <td class="small center">
+                <img class="profile-image" src="{{album.image}}" >
+            </td>
+            <td><a href="{{url_for('spotify_albums_id', album_id=album.id)}}">{{album.name}}</a></td>
             <td>{{album.artist}}</td>
             <td class="unseen">{{album.release}}</td>
             <td class="unseen">{{album.tracks}}</td>

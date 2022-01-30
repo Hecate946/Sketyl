@@ -8,7 +8,6 @@ from email.mime.text import MIMEText
 from email.message import EmailMessage
 from email.mime.multipart import MIMEMultipart
 
-
 import config
 
 

@@ -1,0 +1,109 @@
+* {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+}
+
+.profile-image {
+  width: 50px;
+}
+
+.playlist-button {
+  background-color: #15b8ae;
+  border-color: #017b91;
+}
+
+.playlist-button:hover {
+  background-color: #017b91;
+  border-color: #017b91;
+}
+
+.table-box {
+  width: 70%;
+  margin: 50px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 20px 50px;
+  border-radius: 5px;
+}
+
+.table-name {
+    font-weight: 200px;
+    color: #edf2f4;
+}
+
+.time-select-buttons {
+    color:#60778c;
+}
+
+.time-select-buttons .active {
+    color: #cacdd1
+}
+
+.time-select-buttons a {
+    padding-right: 10px;
+}
+
+
+.table {
+  color: #edf2f4;
+}
+
+.rows:hover {
+    background-color: #ffffff20;
+}
+
+.container {
+  width: 50px;
+  height: 50px;
+  position: relative;
+}
+.overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  transition: 0.3s ease;
+  background-color: #00000000;
+}
+
+.cover {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  border: 2px solid #60778c;
+}
+
+.fa-play,
+.fa-pause {
+  opacity: 0;
+  background: #00000000;
+  font-size: 15px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  text-align: center;
+  color: #dadada;
+}
+
+.container:hover .overlay {
+  background-color: #00000080;
+}
+
+.container:hover .fa-play,
+.fa-pause {
+  opacity: 1;
+}
+
+@media only screen and (max-width: 500px) {
+  .unseen {
+    display: none;
+  }
+}

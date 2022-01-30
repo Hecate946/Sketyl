@@ -3,7 +3,7 @@ $(function(){
     // passes on every "a" tag 
     $(".nav-link").each(function() {
         // checks if its the same on the address bar
-        if(window.location.href == this.href) { 
+        if(window.location.href[0] == this.href) { 
             $(this).addClass("active");
         }
     });
@@ -14,7 +14,8 @@ $(function(){
     // passes on every "a" tag 
     $(".sub-nav .nav-link").each(function() {
         // checks if its the same on the address bar
-        if(window.location.href == this.href) { 
+        var base_url = window.location.href.split("?")[0]
+        if(base_url == this.href) { 
             $(this).addClass("disabled");
         }
     });

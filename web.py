@@ -148,6 +148,26 @@ async def spotify_track(track_id):
     data = await user.get_track(track_id)
     return str(data)
 
+@app.route("/spotify/artist/<artist_id>")
+async def spotify_artist(artist_id):
+    user_id = request.cookies.get("user_id")
+
+    if not user_id:  # User is not logged in, redirect them back
+        session["referrer"] = url_for(
+            "spotify_artist", artist_id=artist_id
+        )  # So they'll send the user back here
+        return redirect(url_for("spotify_connect"))
+
+    user = await spotify.User.from_id(int(user_id), app)
+    if not user:  # Haven't connected their account.
+        session["referrer"] = url_for(
+            "spotify_artist", artist_id=artist_id
+        )  # So they'll send the user back here
+        return redirect(url_for("spotify_connect"))
+
+    data = await user.get_artist(artist_id)
+    return str(data)
+
 @app.route("/spotify/recent")
 async def spotify_recent():
     user_id = request.cookies.get("user_id")
@@ -253,7 +273,32 @@ async def spotify_albums():
     albums = spotify.formatting.albums(data)
     caption = ("Showing your saved Spotify albums.",)
     return await render_template(
-        "/spotify/tables.html", album=True, data=albums, caption=caption
+        "/spotify/tables.html", albums=True, data=albums, caption=caption
+    )
+
+@app.route("/spotify/albums/<album_id>")
+async def spotify_albums_id(album_id):
+    user_id = request.cookies.get("user_id")
+
+    if not user_id:  # User is not logged in, redirect them back
+        session["referrer"] = url_for(
+            "spotify_albums_id", album_id=album_id
+        )  # So they'll send the user back here
+        return redirect(url_for("spotify_connect"))
+
+    user = await spotify.User.from_id(int(user_id), app)
+    if not user:  # Haven't connected their account.
+        session["referrer"] = url_for(
+            "spotify_albums_id", album_id=album_id
+        )  # So they'll send the user back here
+        return redirect(url_for("spotify_connect"))
+
+    album = await user.get_album(album_id)
+    data = await user.get_all_album_tracks(album_id)
+    tracks = spotify.formatting.album(data, album)
+    caption = (f"Showing tracks in \"{album['name']}\".",)
+    return await render_template(
+        "/spotify/tables.html", album=True, data=tracks, caption=caption
     )
 
 
@@ -278,7 +323,7 @@ async def spotify_playlists():
     playlists = spotify.formatting.playlists(data)
     caption = ("Showing your Spotify playlists.",)
     return await render_template(
-        "/spotify/tables.html", playlist=True, data=playlists, caption=caption
+        "/spotify/tables.html", playlists=True, data=playlists, caption=caption
     )
 
 
@@ -360,11 +405,12 @@ async def spotify_top(spotify_type):
         )
 
     if spotify_type == "tracks":
-        data = await user.get_all_top_tracks(time_range=time_range)
-        tracks = spotify.formatting.top_tracks(data)
-        caption = spotify.formatting.get_caption("tracks", time_range)
+        tracks = await user.get_all_top_tracks(time_range=time_range)
+        features = await user.get_audio_features([t["id"] for t in tracks])
+        data = spotify.formatting.top_tracks(tracks, features["audio_features"])
+        caption = "Top Tracks"
         return await render_template(
-            "spotify/tables.html", track=True, data=tracks, caption=caption
+            "spotify/tracks.html", track=True, data=data, caption=caption, tracks=json.dumps(data)
         )
 
     if spotify_type == "genres":
@@ -372,7 +418,7 @@ async def spotify_top(spotify_type):
         genres = spotify.formatting.top_genres(data)
         caption = spotify.formatting.get_caption("genres", time_range)
         return await render_template(
-            "spotify/tables.html", genre=True, data=genres, caption=caption
+            "spotify/tables.html", genres=True, data=genres, caption=caption
         )
 
 
@@ -398,7 +444,7 @@ async def spotify_following():
     artists = spotify.formatting.top_artists(data)
     caption = ("Showing all artists you follow.",)
     return await render_template(
-        "spotify/tables.html", artist=True, data=artists, caption=caption
+        "spotify/tables.html", artists=True, data=artists, caption=caption
     )
 
 

@@ -246,6 +246,11 @@ class User:  # Spotify user w user_id
 
         return liked_tracks
 
+    async def get_audio_features(self, track_ids):
+        params = {"ids": ",".join(track_ids)}
+        query = urlencode(params)
+        return await self.get(CONSTANTS.API_URL + "audio-features?" + query) 
+
     async def get_top_tracks(self, limit=50, time_range="short_term", *, offset=0):
         params = {"limit": limit, "time_range": time_range, "offset": offset}
         query_params = urlencode(params)
@@ -288,6 +293,9 @@ class User:  # Spotify user w user_id
 
         return top_tracks
 
+    async def get_artist_top_tracks(self, artist_id):
+        return await self.get(CONSTANTS.API_URL + f"artists/{artist_id}/top_tracks")
+
     async def get_top_genres(self, limit=50, time_range="long_term"):
         data = await self.get_top_artists(limit, time_range)
         genres = []
@@ -305,6 +313,29 @@ class User:  # Spotify user w user_id
         params = {"limit": limit, "offset": offset}
         query_params = urlencode(params)
         return await self.get(CONSTANTS.API_URL + "me/albums?" + query_params)
+
+    async def get_album(self, album_id):
+        return await self.get(CONSTANTS.API_URL + f"albums/{album_id}")
+
+    async def get_album_tracks(self, album_id, limit=50, *, offset=0):
+        params = {"limit": limit, "offset": offset}
+        query_params = urlencode(params)
+        return await self.get(CONSTANTS.API_URL + f"albums/{album_id}/tracks?" + query_params)
+
+    async def get_all_album_tracks(self, album_id, max_tracks=1000):
+        album_tracks = []
+        offset = 0
+        batch = await self.get_album_tracks(album_id)
+        batch_tracks = batch["items"]
+        album_tracks.extend(batch_tracks)
+        pred = lambda ma: ma > ((offset + 1) * 50)
+
+        while len(batch_tracks) == 50 and pred(max_tracks):
+            offset += 1
+            batch = await self.get_album_tracks(album_id, offset=offset * 50)
+            batch_tracks = batch["items"]
+            album_tracks.extend(batch_tracks)
+        return album_tracks
 
     async def get_all_saved_albums(self, max_albums: int = 1000):
         albums = []
@@ -409,6 +440,9 @@ class User:  # Spotify user w user_id
     async def get_track(self, id):
         return await self.get(CONSTANTS.API_URL + f"tracks/{id}")
 
+    async def get_artist(self, id):
+        return await self.get(CONSTANTS.API_URL + f"artists/{id}")
+
     async def get_user_playlists(self, username, limit=50, *, offset=0):
         params = {"limit": limit, "offset": offset}
         query_params = urlencode(params)
@@ -454,6 +488,9 @@ class User:  # Spotify user w user_id
     async def get_playlist(self, playlist_id):
         """Get a user's owned and followed playlists"""
         return await self.get(CONSTANTS.API_URL + f"playlists/{playlist_id}")
+
+    async def get_playlist_tracks(self, playlist_id):
+        return await self.get(CONSTANTS.API_URL + f"playlists/{playlist_id}/tracks")
 
     async def create_playlist(self, name, *, public=True, collab=False, desc=""):
         spotify_id = await self.get_spotify_id()
@@ -554,11 +591,11 @@ class Formatting:
             )
         if option == "artists":
             return (
-                f"Showing your top Spotify artists",
+                f"Showing your top Spotify artists in the past",
                 self.time_range_map[time_range],
             )
         if option == "genres":
-            return (f"Showing your top Spotify genres", self.time_range_map[time_range])
+            return (f"Showing your top Spotify genres in the past", self.time_range_map[time_range])
 
     def get_image(self, obj):
         try:
@@ -566,7 +603,7 @@ class Formatting:
         except (IndexError, KeyError):
             return CONSTANTS.GREEN_ICON
 
-    def top_tracks(self, data):
+    def top_tracks(self, data, audio_features):
         return [
             {
                 "id": track["id"],
@@ -574,10 +611,26 @@ class Formatting:
                 "image": self.get_image(track["album"]),
                 "preview": track["preview_url"],
                 "name": track["name"],
+                "artists": [{"name": artist['name'], "id": artist['id']} for artist in track["artists"]],
+                "duration": utils.parse_duration(track["duration_ms"] / 1000),
+                "album": track["album"]["name"],
+                "json": json.dumps(dict(track, rank=index, audio_features=features))
+            }
+            for index, (track, features) in enumerate(zip(data, audio_features), start=1)
+        ]
+
+    def album(self, tracks, album):
+        return [
+            {
+                "id": track["id"],
+                "index": index,
+                "image": self.get_image(album),
+                "preview": track["preview_url"],
+                "name": track["name"],
                 "artist": ", ".join([artist["name"] for artist in track["artists"]]),
                 "duration": utils.parse_duration(track["duration_ms"] / 1000),
             }
-            for index, track in enumerate(data, start=1)
+            for index, track in enumerate(tracks, start=1)
         ]
 
     def liked_tracks(self, data):
@@ -637,6 +690,7 @@ class Formatting:
                 "index": index,
                 "name": item["track"]["name"],
                 "image": self.get_image(item["track"]["album"]),
+                "preview": item["track"]["preview_url"],
                 "artist": ", ".join(
                     [artist["name"] for artist in item["track"]["artists"]]
                 ),
@@ -668,6 +722,7 @@ class Formatting:
                 "index": index,
                 "image": self.get_image(album["album"]),
                 "name": album["album"]["name"],
+                "id": album["album"]["id"],
                 "artist": ", ".join(
                     [artist["name"] for artist in album["album"]["artists"]]
                 ),
