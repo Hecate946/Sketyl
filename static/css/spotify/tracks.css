@@ -18,7 +18,6 @@
 
 .table-box {
   width: 70%;
-  margin: 50px;
   margin-left: auto;
   margin-right: auto;
   padding: 20px 50px;
@@ -105,5 +104,8 @@
 @media only screen and (max-width: 500px) {
   .unseen {
     display: none;
+  }
+  .table-box {
+      width: 100%;
   }
 }
