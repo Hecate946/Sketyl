@@ -20,7 +20,7 @@
   width: 100%;
   margin-left: auto;
   margin-right: auto;
-  padding: 20px 20px;
+  padding: 20px;
   border-radius: 5px;
 }
 
@@ -37,7 +37,9 @@
   color: #cacdd1;
 }
 
-.time-select-buttons a {
+/* add space between links */
+.time-select-buttons a:nth-child(2) {
+  padding-left: 10px;
   padding-right: 10px;
 }
 
@@ -100,9 +102,12 @@
   opacity: 1;
 }
 
-@media only screen and (max-width: 700px) {
+@media only screen and (max-width: 630px) {
   .unseen {
     display: none;
+  }
+  .table-box {
+    padding: 20px 0;
   }
   .select-box {
     width: 100%;
