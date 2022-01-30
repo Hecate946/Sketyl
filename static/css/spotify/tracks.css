@@ -110,4 +110,7 @@
       padding-left: 10px;
       padding-right: 10px;
   }
+  .select-box {
+      margin-left: 0;
+  }
 }
