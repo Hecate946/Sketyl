@@ -11,7 +11,6 @@ from email.mime.multipart import MIMEMultipart
 import config
 
 
-
 HOST = "smtp.gmail.com"
 CARRIER_MAP = {
     "verizon": "vtext.com",
@@ -27,7 +26,10 @@ email = config.EMAIL.address
 password = config.EMAIL.password
 port = config.EMAIL.port
 
-async def send_email(address: str, msg: str=None, subj: str = None, *, html:str=None):
+
+async def send_email(
+    address: str, msg: str = None, subj: str = None, *, html: str = None
+):
     message = MIMEMultipart()
     message["From"] = email
     message["To"] = address
@@ -50,6 +52,7 @@ async def send_email(address: str, msg: str=None, subj: str = None, *, html:str=
     msg = "failed" if not re.search(r"\sOK\s", res[1]) else "succeeded"
     return res
 
-async def send_emails(self, addresses:list, msg: str, subj: str):
+
+async def send_emails(self, addresses: list, msg: str, subj: str):
     tasks = [send_email(a, msg, subj) for a in set(addresses)]
     return await asyncio.gather(*tasks)

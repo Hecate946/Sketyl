@@ -1,93 +1,101 @@
-{% extends 'spotify/main.html' %}
-{% block head %}
-{{ super() }}
-
-{% endblock %}
-
-{% block body %}
-{{ super() }}
+{% extends 'spotify/main.html' %} {% block head %} {{ super() }} {% endblock %}
+{% block body %} {{ super() }}
 <script src="https://sdk.scdn.co/spotify-player.js"></script>
+<script
+  src="{{url_for('static', filename='js/player.js')}}"
+  data-token="{{token}}"
+></script>
 <script>
-window.onSpotifyPlayerAPIReady = () => {
+  window.onSpotifyPlayerAPIReady = () => {
     const player = new Spotify.Player({
-      name: 'Web Playback SDK Template',
-      getOAuthToken: cb => { cb("{{token}}"); }
+      name: "Web Playback SDK Template",
+      getOAuthToken: (cb) => {
+        cb("{{token}}");
+      },
     });
-  
+
     // Error handling
-    player.on('initialization_error', e => console.error(e));
-    player.on('authentication_error', e => console.error(e));
-    player.on('account_error', e => console.error(e));
-    player.on('playback_error', e => console.error(e));
-  
+    player.on("initialization_error", (e) => console.error(e));
+    player.on("authentication_error", (e) => console.error(e));
+    player.on("account_error", (e) => console.error(e));
+    player.on("playback_error", (e) => console.error(e));
+
     // Playback status updates
-    player.on('player_state_changed', state => {
-      console.log(state)
-      $('#current-track').attr('src', state.track_window.current_track.album.images[0].url);
-      $('#current-track-name').text(state.track_window.current_track.name);
+    player.on("player_state_changed", (state) => {
+      console.log(state);
+      $("#current-track").attr(
+        "src",
+        state.track_window.current_track.album.images[0].url
+      );
+      $("#current-track-name").text(state.track_window.current_track.name);
     });
-  
+
     // Ready
-    player.on('ready', data => {
-      console.log('Ready with Device ID', data.device_id);
-      
+    player.on("ready", (data) => {
+      console.log("Ready with Device ID", data.device_id);
+
       // Play a track using our new device ID
-      window.device_id = data.device_id
+      window.device_id = data.device_id;
     });
-  
+
     // Connect to the player!
     player.connect();
+  };
+
+  function play(device_id) {
+    $.ajax({
+      url: "https://api.spotify.com/v1/me/player/play?device_id=" + device_id,
+      type: "PUT",
+      data: '{"uris": ["spotify:track:5ya2gsaIhTkAuWYEMB0nw5"]}',
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", "Bearer " + "{{token}}");
+      },
+      success: function (data) {
+        console.log(data);
+      },
+    });
   }
-
-function play(device_id) {
-  $.ajax({
-   url: "https://api.spotify.com/v1/me/player/play?device_id=" + device_id,
-   type: "PUT",
-   data: '{"uris": ["spotify:track:5ya2gsaIhTkAuWYEMB0nw5"]}',
-   beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + "{{token}}" );},
-   success: function(data) { 
-     console.log(data)
-   }
-  });
-}
-function pause(device_id) {
-  $.ajax({
-   url: "https://api.spotify.com/v1/me/player/pause?device_id=" + device_id,
-   type: "PUT",
-   beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + "{{token}}" );},
-   success: function(data) { 
-     console.log(data)
-   }
-  });
-}
-$(function(){
-    $(document).on('click', '.play', function() {
-        console.log("play clicked")
-        play(window.device_id);
-        $(this).text("Pause")
-        $(this).addClass("pause")
-        $(this).removeClass("play")
+  function pause(device_id) {
+    $.ajax({
+      url: "https://api.spotify.com/v1/me/player/pause?device_id=" + device_id,
+      type: "PUT",
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", "Bearer " + "{{token}}");
+      },
+      success: function (data) {
+        console.log(data);
+      },
     });
-});
-$(function(){
-    $(document).on('click', '.pause', function() {
-        console.log("pause clicked")
-        pause(window.device_id);
-        $(this).text("Play")
-        $(this).addClass("play")
-        $(this).removeClass("pause")
+  }
+  $(function () {
+    $(document).on("click", ".play", function () {
+      console.log("play clicked");
+      play(window.device_id);
+      $(this).text("Pause");
+      $(this).addClass("pause");
+      $(this).removeClass("play");
     });
-});
-
+  });
+  $(function () {
+    $(document).on("click", ".pause", function () {
+      console.log("pause clicked");
+      pause(window.device_id);
+      $(this).text("Play");
+      $(this).addClass("play");
+      $(this).removeClass("pause");
+    });
+  });
 </script>
 
-  <body class="container">
-    <h1 class="text-salmon">Spotify Web Playback SDK</h1>
-    <audio controls>
-    <source src="https://p.scdn.co/mp3-preview/c1b2116a7047e2e916e02307391eb8a61d0b12ee?cid=f123e2209bc544c497eec01550b9c754">
-    </audio>
-    <img id="current-track"/>
-    <h3 id="current-track-name"></h3>
-    <button type="button" class="btn btn-info play">Play</button>
-  </body>
+<body class="container">
+  <h1 class="text-salmon">Spotify Web Playback SDK</h1>
+  <audio controls>
+    <source
+      src="https://p.scdn.co/mp3-preview/c1b2116a7047e2e916e02307391eb8a61d0b12ee?cid=f123e2209bc544c497eec01550b9c754"
+    />
+  </audio>
+  <img id="current-track" />
+  <h3 id="current-track-name"></h3>
+  <button type="button" class="btn btn-info play">Play</button>
+</body>
 {% endblock %}

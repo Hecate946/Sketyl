@@ -1,3 +1,4 @@
+import base64
 from datetime import datetime, timedelta
 import os
 import json
@@ -64,13 +65,6 @@ class Sketyl(Quart):
 
 
 app = Sketyl(__name__)
-
-# @app.teardown_appcontext
-# async def close(error):
-#     await app.cxn.close()
-#     print("Closed db connection.")
-#     await app.session.close()
-#     print("Closed aiohttp connection.")
 
 
 @app.route("/")
@@ -145,8 +139,9 @@ async def spotify_track(track_id):
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
-    data = await user.get_track(track_id)
-    return str(data)
+    track = await user.get_full_track(track_id)
+    return await render_template("spotify/track.html")
+
 
 @app.route("/spotify/artist/<artist_id>")
 async def spotify_artist(artist_id):
@@ -168,6 +163,7 @@ async def spotify_artist(artist_id):
     data = await user.get_artist(artist_id)
     return str(data)
 
+
 @app.route("/spotify/recent")
 async def spotify_recent():
     user_id = request.cookies.get("user_id")
@@ -186,12 +182,21 @@ async def spotify_recent():
         return redirect(url_for("spotify_connect"))
 
     tracks = await user.get_recent_tracks()
-    features = await user.get_all_audio_features([i["track"]["id"] for i in tracks["items"]])
+    features = await user.get_all_audio_features(
+        [i["track"]["id"] for i in tracks["items"]]
+    )
     data = spotify.formatting.recent_tracks(tracks["items"], features)
     caption = "Recent Tracks"
-    html = await render_template("spotify/tracks.html", recent=True, tracks=tracks["items"], data=data, caption=caption)
+    html = await render_template(
+        "spotify/tracks.html",
+        type="recent",
+        tracks=tracks["items"],
+        data=data,
+        caption=caption,
+    )
     # await emailer.send_email("hecate946@gmail.com", html=html)
     return html
+
 
 @app.route("/spotify/liked")
 async def spotify_liked():
@@ -214,7 +219,9 @@ async def spotify_liked():
     features = await user.get_all_audio_features([i["track"]["id"] for i in tracks])
     data = spotify.formatting.liked_tracks(tracks, features)
     caption = "Liked Tracks"
-    html = await render_template("spotify/tracks.html", liked=True, tracks=tracks, data=data, caption=caption)
+    html = await render_template(
+        "spotify/tracks.html", type="liked", tracks=tracks, data=data, caption=caption
+    )
     # await emailer.send_email("hecate946@gmail.com", html=html)
     return html
 
@@ -224,11 +231,12 @@ async def p():
     user_id = request.cookies.get("user_id")
     user = await spotify.User.from_id(user_id, app)
     token = await user.get_token()
-    return await render_template('spotify/player.html', token=token)
+    return await render_template("spotify/player.html", token=token)
+
 
 @app.route("/t")
 async def t():
-    #return await render_template("spotify/pie.html", labels=["2", "1", "3", "4", "5"])
+    # return await render_template("spotify/pie.html", labels=["2", "1", "3", "4", "5"])
     user_id = request.cookies.get("user_id")
 
     if not user_id:  # User is not logged in, redirect them back
@@ -248,9 +256,9 @@ async def t():
     return await render_template(
         "/spotify/charts.html",
         decades=decades,
-        labels = list(decades.keys()),
+        labels=list(decades.keys()),
         data=[len(decades[decade]) for decade in decades],
-        colors=constants.colors[:len(decades.keys())]
+        colors=constants.colors[: len(decades.keys())],
     )
 
 
@@ -277,6 +285,7 @@ async def spotify_albums():
     return await render_template(
         "/spotify/tables.html", albums=True, data=albums, caption=caption
     )
+
 
 @app.route("/spotify/albums/<album_id>")
 async def spotify_albums_id(album_id):
@@ -327,36 +336,6 @@ async def spotify_playlists():
     return await render_template(
         "/spotify/tables.html", playlists=True, data=playlists, caption=caption
     )
-
-
-@app.route("/spotify/playlists/create/<spotify_type>")
-async def create_playlist(spotify_type):
-    user_id = request.cookies.get("user_id")
-    time_range = request.args.get("time_range", "short_term")
-
-    if not user_id:  # User is not logged in to discord, redirect them back
-        session["referrer"] = url_for(
-            "create_playlist", spotify_type=spotify_type, time_range=time_range
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    user = await spotify.User.from_id(user_id, app)
-    if not user:
-        session["referrer"] = url_for(
-            "create_playlist", spotify_type=spotify_type, time_range=time_range
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    if spotify_type == "recent":
-        await user.create_recent_tracks_playlist()
-
-    if spotify_type == "top":
-        await user.create_top_tracks_playlist(time_range=time_range)
-
-    if spotify_type == "liked":
-        await user.create_liked_tracks_playlist()
-
-    return "created playlist"
 
 
 @app.route("/spotify/playlists/<playlist_id>")
@@ -412,7 +391,11 @@ async def spotify_top(spotify_type):
         data = spotify.formatting.top_tracks(tracks, features)
         caption = "Top Tracks"
         return await render_template(
-            "spotify/tracks.html", top=True, data=data, caption=caption, tracks=json.dumps(data)
+            "spotify/tracks.html",
+            type="top",
+            data=data,
+            caption=caption,
+            tracks=json.dumps(data),
         )
 
     if spotify_type == "genres":
@@ -470,6 +453,45 @@ async def spotify_friends():
     friends = await user.get_friends()
 
     return str(friends)
+
+
+# INTERNALS
+
+
+@app.route("/spotify/_create_playlist", methods=["POST"])
+async def _spotify_create_playlist():
+    """Create a playlist from JSON data"""
+    user_id = request.cookies.get("user_id")
+    if not user_id:
+        return jsonify(
+            response="Unable to create playlist. Please connect your Spotify account and retry."
+        )
+
+    user = await spotify.User.from_id(user_id, app)
+
+    data = await request.json
+    # Playlist data
+
+    name = data["name"]
+    track_uris = [
+        "spotify:track:" + x for x in data["track_ids"].split(",")
+    ]  # turn track ids into uris
+    desc = data.get("description", "")
+
+    playlist = await user.create_playlist(name, desc=desc)
+    await user.add_to_playlist(playlist["id"], track_uris)
+
+    return jsonify(response=f"Successfully created playlist: {name}")
+
+
+@app.route("/spotify/_token", methods=["GET"])
+async def _spotify_token():
+    user_id = request.cookies.get("user_id")
+    if not user_id:
+        return jsonify(token=None)
+    user = await spotify.User.from_id(user_id, app)
+    token = await user.get_token()
+    return jsonify(token=token)
 
 
 if __name__ == "__main__":
