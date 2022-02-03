@@ -87,7 +87,7 @@ $(".table-sort").on("change", function () {
             var valueB = trackB["album"]["name"].toLowerCase();
         }
 
-        if (selection == "affinity") {
+        if (selection == "order") {
             var valueA = trackA["rank"];
             var valueB = trackB["rank"];
         }

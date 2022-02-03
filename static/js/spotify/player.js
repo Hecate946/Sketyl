@@ -2,7 +2,8 @@ window.onSpotifyPlayerAPIReady = () => {
     const player = new Spotify.Player({
         name: "Web Playback SDK Template",
         getOAuthToken: (cb) => {
-            $.getJSON("/_spotify_token", function (data) {
+            $.getJSON("/spotify/_token", function (data) {
+                window.token = data.token
                 cb(data.token);
             });
         },
@@ -36,43 +37,52 @@ window.onSpotifyPlayerAPIReady = () => {
     player.connect();
 };
 
-function play(uris) {
-    $.ajax({
-        url:
-            "https://api.spotify.com/v1/me/player/play?device_id=" +
-            window.device_id,
-        type: "PUT",
-        data: JSON.stringify({ uris: uris }),
-        beforeSend: function (xhr) {
-            $.getJSON("/_spotify_token", function (data) {
-                xhr.setRequestHeader("Authorization", "Bearer " + data.token);
-            });
-        },
-        success: function (data) {
-            console.log(data);
-        },
+
+function getToken() {
+    return new Promise(function (resolve, reject) {
+        $.ajax({
+            url: '/spotify/_token',
+            success: function (data) {
+                resolve(data) // Resolve promise and go to then()
+            },
+            error: function (err) {
+                reject(err) // Reject the promise and go to catch()
+            }
+        });
     });
 }
-function pause() {
-    $.ajax({
-        url:
-            "https://api.spotify.com/v1/me/player/pause?device_id=" +
-            window.device_id,
-        type: "PUT",
-        beforeSend: function (xhr) {
-            $.getJSON("/_spotify_token", function (data) {
+
+function play(uris) {// comma delimited string of uris
+    getToken().then(function (data) {
+        // Run this when your request was successful
+        uris = uris.split(",")
+        $.ajax({
+            url: "https://api.spotify.com/v1/me/player/play?device_id=" + device_id,
+            type: "PUT",
+            data: JSON.stringify({ uris: uris }),
+            beforeSend: function (xhr) {
                 xhr.setRequestHeader("Authorization", "Bearer " + data.token);
-            });
-        },
-        success: function (data) {
-            console.log(data);
-        },
-    });
+            }
+        });
+    })
+}
+
+function pause() {
+    getToken().then(function (data) {
+        // Run this when your request was successful
+        uris = uris.split(",")
+        $.ajax({
+            url: "https://api.spotify.com/v1/me/player/pause?device_id=" + device_id,
+            type: "PUT",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", "Bearer " + data.token);
+            }
+        });
+    })
 }
 
 $(function () {
     $(document).on("click", ".play", function () {
-        console.log("play clicked");
         $(this).text("Pause");
         $(this).addClass("pause");
         $(this).removeClass("play");
@@ -80,7 +90,6 @@ $(function () {
 });
 $(function () {
     $(document).on("click", ".pause", function () {
-        console.log("pause clicked");
         $(this).text("Play");
         $(this).addClass("play");
         $(this).removeClass("pause");

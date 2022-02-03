@@ -1,0 +1,23 @@
+{% extends 'spotify/main.html' %}
+{% block head %} {{ super() }}
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/spotify/genres.css') }}"
+/>
+{% endblock %}
+{% block body %} {{ super() }}
+
+<div class="body">
+    <div class="scroll">
+        <div class="parent">
+            {% for genre in genres %}
+            <div>
+                <span class="view-link">{{genre}}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<script src="{{url_for('static', filename='js/spotify/utils.js')}}"></script>
+<script src="{{url_for('static', filename='js/spotify/genres.js')}}"></script>
+{% endblock %}

@@ -14,3 +14,15 @@ function createPlaylist(name, description, track_ids) {
         contentType: "application/json",
     });
 }
+
+function getGenreRecommendations(genreName) {
+    $.ajax({
+        type: "GET",
+        url: "/spotify/_genre_recommendations?genre=" + genreName,
+        success: function (data) {
+            console.log(data);
+            alert(data.response);
+        },
+        contentType: "application/json",
+    });
+}

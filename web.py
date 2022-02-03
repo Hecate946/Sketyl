@@ -140,7 +140,7 @@ async def spotify_track(track_id):
         return redirect(url_for("spotify_connect"))
 
     track = await user.get_full_track(track_id)
-    return await render_template("spotify/track.html")
+    return await render_template("spotify/track.html", track=track)
 
 
 @app.route("/spotify/artist/<artist_id>")
@@ -224,14 +224,6 @@ async def spotify_liked():
     )
     # await emailer.send_email("hecate946@gmail.com", html=html)
     return html
-
-
-@app.route("/p")
-async def p():
-    user_id = request.cookies.get("user_id")
-    user = await spotify.User.from_id(user_id, app)
-    token = await user.get_token()
-    return await render_template("spotify/player.html", token=token)
 
 
 @app.route("/t")
@@ -407,6 +399,11 @@ async def spotify_top(spotify_type):
         )
 
 
+@app.route("/g")
+async def g():
+    return await render_template("spotify/genres.html", genres=constants.spotify_genres)
+
+
 @app.route("/spotify/following")
 async def spotify_following():
     user_id = request.cookies.get("user_id")
@@ -484,6 +481,25 @@ async def _spotify_create_playlist():
     return jsonify(response=f"Successfully created playlist: {name}")
 
 
+@app.route("/spotify/_genre_recommendations", methods=["GET"])
+async def _spotify_genre_recommendations():
+    user_id = request.cookies.get("user_id")
+    if not user_id:
+        return jsonify(
+            response="Unable to generate recommendations. Please connect your Spotify account and retry."
+        )
+
+    user = await spotify.User.from_id(user_id, app)
+
+    data = await request.json
+    print(data)
+    genre_name = request.args.get("genre")
+    print(genre_name)
+    recommendations = await user.get_recommendations(seed_genres=genre_name)
+
+    return jsonify(response=recommendations)
+
+
 @app.route("/spotify/_token", methods=["GET"])
 async def _spotify_token():
     user_id = request.cookies.get("user_id")
@@ -492,6 +508,14 @@ async def _spotify_token():
     user = await spotify.User.from_id(user_id, app)
     token = await user.get_token()
     return jsonify(token=token)
+
+
+@app.route("/p")
+async def p():
+    user_id = request.cookies.get("user_id")
+    user = await spotify.User.from_id(user_id, app)
+    token = await user.get_token()
+    return await render_template("spotify/player.html", token=token)
 
 
 if __name__ == "__main__":

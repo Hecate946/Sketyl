@@ -30,9 +30,16 @@
         </div>
         <div class="ms-auto p-2 d-flex align-items-end select-box">
             <select class="form-select form-select-sm table-sort">
-                <option selected value="affinity">
+            {# Sorting by affinity only available for top tracks. Change name but still sort by rank. #}
+                {% if type == "top" %}
+                <option selected value="order">
                     Sort by track affinity
                 </option>
+                {% else %}
+                <option selected value="order">
+                    Sort by track order
+                </option>
+                {% endif %}
                 <option value="name">Sort by track name</option>
                 <option value="artist">Sort by artists</option>
                 <option value="album">Sort by album</option>
@@ -69,8 +76,8 @@
                 <th scope="row">{{track.index}}</th>
                 <td>
                     <div class="container">
-                        <img class="cover" src="{{track.image}}" />
                         <div class="overlay">
+                            <img class="cover" src="{{track.image}}" />
                             <span class="icon play-pause">
                                 <i class="fa fa-play"></i>
                                 <audio
@@ -82,9 +89,9 @@
                     </div>
                 </td>
                 <td>
-                    <button class="link-light track btn btn-link">
+                    <a href="{{url_for('spotify_track', track_id=track.id)}}" class="link-light track">
                         {{track.name}}
-                    </button>
+                    </a>
                 </td>
                 <td>
                     {% for artist in track.artists %}

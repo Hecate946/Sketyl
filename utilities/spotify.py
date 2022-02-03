@@ -207,6 +207,10 @@ class User:  # Spotify user w user_id
     async def get_devices(self):
         return await self.get(CONSTANTS.API_URL + "me/player/devices")
 
+    async def get_recommendations(self, limit=100, **kwargs):
+        params = {"limit": 100}.update(**kwargs)
+        return await self.get(CONSTANTS.API_URL + "recommendations")
+
     async def transfer_playback(self, devices, play: bool = False):
         return await self.put(
             CONSTANTS.API_URL + "me/player", json={"device_ids": devices, "play": play}

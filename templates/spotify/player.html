@@ -48,6 +48,7 @@
       type: "PUT",
       data: '{"uris": ["spotify:track:5ya2gsaIhTkAuWYEMB0nw5"]}',
       beforeSend: function (xhr) {
+        console.log("{{token}}")
         xhr.setRequestHeader("Authorization", "Bearer " + "{{token}}");
       },
       success: function (data) {
