@@ -584,8 +584,9 @@ class User:  # Spotify user w user_id
         for track in data:
             decades[decade(track["album"]["release_date"])].append(track)
 
+        features = await self.get_all_audio_features([t["id"] for t in data])
         return {
-            str(decade) + "s": formatting.top_tracks(tracks)
+            str(decade) + "s": formatting.top_tracks(tracks, features)
             for decade, tracks in sorted(decades.items())
         }
 

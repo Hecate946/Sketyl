@@ -11,9 +11,6 @@ def generate_id():
     return int(encoded + random_id)
 
 
-print(generate_id())
-
-
 def parse_duration(duration: int):
     """
     Helper function to get visually pleasing
