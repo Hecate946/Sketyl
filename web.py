@@ -226,31 +226,31 @@ async def spotify_liked():
     return html
 
 
-@app.route("/t")
-async def t():
-    # return await render_template("spotify/pie.html", labels=["2", "1", "3", "4", "5"])
+@app.route("/spotify/decades")
+async def spotify_decades():
     user_id = request.cookies.get("user_id")
 
     if not user_id:  # User is not logged in, redirect them back
         session["referrer"] = url_for(
-            "spotify_albums"
+            "spotify_decades"
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
     user = await spotify.User.from_id(int(user_id), app)
     if not user:  # Haven't connected their account.
         session["referrer"] = url_for(
-            "spotify_albums"
+            "spotify_decades"
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
     decades = await user.get_decades()
+
     return await render_template(
         "/spotify/charts.html",
         decades=decades,
-        labels=list(decades.keys()),
-        data=[len(decades[decade]) for decade in decades],
-        colors=constants.colors[: len(decades.keys())],
+        labels=json.dumps(list(decades.keys())),
+        data=json.dumps([len(decades[decade]["tracks"]) for decade in decades]),
+        colors=json.dumps(constants.colors[: len(decades.keys())]),
     )
 
 
