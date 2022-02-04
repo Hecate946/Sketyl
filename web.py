@@ -80,6 +80,8 @@ async def _spotify():
         return await render_template("spotify/login.html")
 
     user = await spotify.User.from_id(user_id, app)
+    if not user:
+        return await render_template("spotify/login.html")
     decades = await user.get_decades()
 
     return await render_template(
