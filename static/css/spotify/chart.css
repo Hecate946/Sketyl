@@ -1,8 +1,16 @@
+* {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+}
 .chart-container {
     width: 50%;
     margin: 50px auto;
 }
-
+h1 {
+    padding: 20px;
+    padding-bottom: 0px;
+    color: #6d6d86;
+    font-size: 20px;
+}
 @media only screen and (max-width: 630px) {
     .chart-container {
         width: 100%;

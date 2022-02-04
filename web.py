@@ -70,14 +70,25 @@ app = Sketyl(__name__)
 
 @app.route("/")
 async def index():
-    user_id = request.cookies.get("user_id")
-    return await render_template("index.html", user_id=user_id)
+    return await render_template("home.html")
 
 
 @app.route("/spotify")
 async def _spotify():
-    return await render_template("spotify/main.html")
+    user_id = request.cookies.get("user_id")
+    if not user_id: # Have them log in
+        return await render_template("spotify/login.html")
 
+    user = await spotify.User.from_id(user_id, app)
+    decades = await user.get_decades()
+
+    return await render_template(
+        "/spotify/charts.html",
+        decades=decades,
+        labels=json.dumps(list(decades.keys())),
+        data=json.dumps([len(decades[decade]["tracks"]) for decade in decades]),
+        colors=json.dumps(constants.colors[: len(decades.keys())]),
+    )
 
 @app.route("/spotify/connect")
 async def spotify_connect():
@@ -97,13 +108,13 @@ async def spotify_connect():
     )  # Save user
     redirect_location = session.pop("referrer", url_for("_spotify"))
     response = await make_response(redirect(redirect_location))
-    print("made response")
+
     response.set_cookie(
         "user_id",
         str(sp_user.user_id),
         expires=datetime.utcnow() + timedelta(days=365),
     )
-    print("set cookie")
+
     return response
 
 
@@ -117,7 +128,7 @@ async def spotify_disconnect():
             DELETE FROM spotify_auth
             WHERE user_id = $1
             """
-    await app.cxn.execute(query, int(user_id))
+    await app.cxn.execute(query, user_id)
     response = await make_response(redirect(url_for("_spotify")))
     response.set_cookie("user_id", "", expires=0)
     return response
@@ -133,7 +144,7 @@ async def spotify_user(user_id):
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
-    current_user = await spotify.User.from_id(int(current_user_id), app)
+    current_user = await spotify.User.from_id(current_user_id, app)
     if not current_user:  # Haven't connected their account.
         session["referrer"] = url_for(
             "spotify_playlist", user_id=user_id
@@ -154,7 +165,7 @@ async def spotify_playlist(playlist_id):
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
-    user = await spotify.User.from_id(int(user_id), app)
+    user = await spotify.User.from_id(user_id, app)
     if not user:  # Haven't connected their account.
         session["referrer"] = url_for(
             "spotify_playlist", playlist_id=playlist_id
@@ -175,7 +186,7 @@ async def spotify_album(album_id):
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
-    user = await spotify.User.from_id(int(user_id), app)
+    user = await spotify.User.from_id(user_id, app)
     if not user:  # Haven't connected their account.
         session["referrer"] = url_for(
             "spotify_album", album_id=album_id
@@ -201,7 +212,7 @@ async def spotify_artist(artist_id):
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
-    user = await spotify.User.from_id(int(user_id), app)
+    user = await spotify.User.from_id(user_id, app)
     if not user:  # Haven't connected their account.
         session["referrer"] = url_for(
             "spotify_artist", artist_id=artist_id
@@ -222,7 +233,7 @@ async def spotify_track(track_id):
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
-    user = await spotify.User.from_id(int(user_id), app)
+    user = await spotify.User.from_id(user_id, app)
     if not user:  # Haven't connected their account.
         session["referrer"] = url_for(
             "spotify_track", track_id=track_id
@@ -243,7 +254,7 @@ async def spotify_recent():
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
-    user = await spotify.User.from_id(int(user_id), app)
+    user = await spotify.User.from_id(user_id, app)
     if not user:  # Haven't connected their account.
         session["referrer"] = url_for(
             "spotify_recent"
@@ -277,7 +288,7 @@ async def spotify_liked():
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
-    user = await spotify.User.from_id(int(user_id), app)
+    user = await spotify.User.from_id(user_id, app)
     if not user:  # Haven't connected their account.
         session["referrer"] = url_for(
             "spotify_liked"
@@ -305,7 +316,7 @@ async def spotify_decades():
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
-    user = await spotify.User.from_id(int(user_id), app)
+    user = await spotify.User.from_id(user_id, app)
     if not user:  # Haven't connected their account.
         session["referrer"] = url_for(
             "spotify_decades"
@@ -333,7 +344,7 @@ async def spotify_albums():
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
-    user = await spotify.User.from_id(int(user_id), app)
+    user = await spotify.User.from_id(user_id, app)
     if not user:  # Haven't connected their account.
         session["referrer"] = url_for(
             "spotify_albums"
@@ -356,7 +367,7 @@ async def spotify_albums_id(album_id):
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
-    user = await spotify.User.from_id(int(user_id), app)
+    user = await spotify.User.from_id(user_id, app)
     if not user:  # Haven't connected their account.
         session["referrer"] = url_for(
             "spotify_albums_id", album_id=album_id
@@ -382,7 +393,7 @@ async def spotify_playlists():
         )  # So they'll send the user back here
         return redirect(url_for("spotify_connect"))
 
-    user = await spotify.User.from_id(int(user_id), app)
+    user = await spotify.User.from_id(user_id, app)
     if not user:  # Haven't connected their account.
         session["referrer"] = url_for(
             "spotify_playlists"

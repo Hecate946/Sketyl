@@ -142,6 +142,18 @@ class User:  # Spotify user w user_id
         self.client = bot_or_app
         self.oauth = Oauth(bot_or_app)
 
+    @staticmethod
+    async def _get_user_id(app, token_info):
+        token = token_info.get("access_token")
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
+
+        profile = await app.http.get(CONSTANTS.API_URL + "me", res_method="json", headers=headers)
+        print(profile)
+        return profile["id"]
+
     @classmethod
     async def from_id(cls, user_id, bot_or_app):
         query = """
@@ -149,15 +161,16 @@ class User:  # Spotify user w user_id
                 FROM spotify_auth
                 WHERE user_id = $1;
                 """
-        token_info = await bot_or_app.cxn.fetchval(query, int(user_id))
+        token_info = await bot_or_app.cxn.fetchval(query, user_id)
 
         if token_info:
             token_info = json.loads(token_info)
-            return cls(int(user_id), token_info, bot_or_app)
+            return cls(user_id, token_info, bot_or_app)
 
     @classmethod
     async def from_token(cls, token_info, bot_or_app, *, user_id=None):
-        user_id = user_id or utils.generate_id()
+        user_id = user_id or await cls._get_user_id(bot_or_app, token_info)
+        print(user_id)
         query = """
                 INSERT INTO spotify_auth
                 VALUES ($1, $2)
@@ -165,9 +178,9 @@ class User:  # Spotify user w user_id
                 DO UPDATE SET token_info = $2
                 WHERE spotify_auth.user_id = $1;
                 """
-        await bot_or_app.cxn.execute(query, int(user_id), json.dumps(token_info))
+        await bot_or_app.cxn.execute(query, user_id, json.dumps(token_info))
 
-        return cls(int(user_id), token_info, bot_or_app)
+        return cls(user_id, token_info, bot_or_app)
 
     async def get_token(self):
         return await self.oauth.get_access_token(self.user_id, self.token_info)

@@ -158,27 +158,27 @@ $(function () {
         });
 });
 
-$(function () {
-    // render track page
-    $(".track").on("click", function () {
-        var trackJson = $(this).closest("tr").data("track"); // parent tr track.json
-        var url = `${window.location.origin}/spotify/track/${trackJson.id
-            }?track_data=${btoa(trackJson.toString())}`; // redirect to page
-        console.log(url);
+// $(function () {
+//     // render track page
+//     $(".track").on("click", function () {
+//         var trackJson = $(this).closest("tr").data("track"); // parent tr track.json
+//         var url = `${window.location.origin}/spotify/track/${trackJson.id
+//             }?track_data=${btoa(trackJson.toString())}`; // redirect to page
+//         console.log(url);
 
-        //     $.ajax({
-        //         type: 'POST',
-        //        contentType: 'application/json',
-        //        data: JSON.stringify(trackJson),
-        //        url: url,
-        //        success: function (e) {
-        //            console.log("success");
-        //            console.log(e);
-        //            window.location = url;
-        //        },
-        //        error: function(error) {
-        //        console.log(error);
-        //    }
-        //    });
-    });
-});
+//         //     $.ajax({
+//         //         type: 'POST',
+//         //        contentType: 'application/json',
+//         //        data: JSON.stringify(trackJson),
+//         //        url: url,
+//         //        success: function (e) {
+//         //            console.log("success");
+//         //            console.log(e);
+//         //            window.location = url;
+//         //        },
+//         //        error: function(error) {
+//         //        console.log(error);
+//         //    }
+//         //    });
+//     });
+// });

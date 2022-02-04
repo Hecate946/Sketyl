@@ -1,4 +1,4 @@
-{% extends 'spotify/tracks.html' %}
+{% extends 'spotify/main.html' %}
 {% block head %}
 {{ super() }}
 
@@ -6,9 +6,16 @@
     rel="stylesheet"
     href="{{ url_for('static', filename='css/spotify/chart.css') }}"
 />
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/spotify/tracks.css') }}"
+/>
 {% endblock %}
 {% block body %} 
-
+{{super()}}
+<div class="heading text-center">
+    <h1>The music you listen to most comes from across {{decades.keys()|length}} decades. Explore your favorite tracks from each decade by expanding the dropdowns below.</h1>
+</div>
 <div class="chart-container">
     <canvas id="chartcanvas" data-labels="{{labels}}" data-colors="{{colors}}" data-decades="{{data}}"></canvas>
 </div>
