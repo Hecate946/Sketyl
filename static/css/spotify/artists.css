@@ -1,0 +1,31 @@
+* {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+}
+.artist-box {
+    height: 100%;
+}
+.artist {
+    display: block;
+    text-align: center;
+    width: 200px;
+    height: 200px;
+    margin: 50px;
+}
+
+.artist .image {
+    display: block;
+    margin: 0 auto;
+    padding: 30px;
+    height: 100%;
+    width: 100%;
+    border-radius: 50%;
+}
+
+.artist .name {
+    font-size: 25px;
+    color: #efefef;
+}
+
+.parent {
+    padding-bottom: 50px;
+}

@@ -1,0 +1,125 @@
+* {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+  }
+  
+  .playlist-button {
+    background-color: #15b8ae;
+    border-color: #017b91;
+  }
+  
+  .playlist-button:hover {
+    background-color: #017b91;
+    border-color: #017b91;
+  }
+  
+  .play-pause {
+      display: block;
+      height: 100%;
+      width: 100%;
+  }
+  
+  .play-pause:hover {
+      cursor: pointer;
+  }
+  
+  .table-box {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 20px;
+    border-radius: 5px;
+  }
+  
+  .table-name {
+    font-weight: 200px;
+    color: #edf2f4;
+  }
+  
+  .time-select-buttons {
+    color: #60778c;
+  }
+  
+  .time-select-buttons .active {
+    color: #cacdd1;
+  }
+  
+  /* add space between links */
+  .time-select-buttons a:nth-child(2) {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .table {
+    color: #edf2f4;
+    width: 100%;
+  }
+  
+  .rows:hover {
+    background-color: #ffffff20;
+  }
+  
+  .container {
+    width: 50px;
+    height: 50px;
+    position: relative;
+  }
+  .overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    transition: 0.3s ease;
+    background-color: #00000000;
+  }
+  
+  .cover {
+    height: 50px;
+    width: 50px;
+    border-radius: 2px;
+  }
+  
+  .fa-play,
+  .fa-pause {
+    opacity: 0;
+    background: #00000000;
+    font-size: 15px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    text-align: center;
+    color: #dadada;
+  }
+  
+  .container:hover .overlay {
+    background-color: #00000080;
+  }
+  
+  .container:hover .fa-play,
+  .fa-pause {
+    opacity: 1;
+  }
+  
+  @media only screen and (max-width: 630px) {
+    .unseen {
+      display: none;
+    }
+    .table-box {
+      padding: 20px 0;
+    }
+    .select-box {
+      width: 100%;
+      justify-content: start;
+    }
+    .select-box select {
+      width: 100%;
+    }
+    td {
+      font-size: 12px;
+    }
+  }
+  

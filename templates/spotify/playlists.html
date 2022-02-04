@@ -1,0 +1,64 @@
+{% extends 'spotify/main.html' %} {% block head %} {{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/spotify/playlists.css') }}" />
+{% endblock %} {% block body %} {{ super() }}
+<div class="table-box bg-dark table-responsive">
+    <div class="header d-flex flex-wrap">
+        <div class="p-2">
+            <h3 class="table-name">{{caption}}</h3>
+        </div>
+        <div class="ms-auto p-2 d-flex align-items-end select-box">
+            <select class="form-select form-select-sm sorter">
+                <option selected value="order">
+                    Sort by save date (newest to oldest)
+                </option>
+                <option value="name">Sort by playlist name</option>
+                <option value="owner">Sort by owner</option>
+                <option value="tracks">
+                    Sort by number of tracks (most to least)
+                </option>
+            </select>
+        </div>
+    </div>
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Cover</th>
+                <th scope="col">Name</th>
+                <th scope="col">Owner</th>
+                <th class="unseen" scope="col">Type</th>
+                <th class="unseen" scope="col">Tracks</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for playlist in playlists %}
+            <tr class="rows" data-playlist="{{playlist.json}}">
+                <th scope="row">{{playlist.index}}</th>
+                <td>
+                    <img class="cover" src="{{playlist.image}}">
+                </td>
+                <td>
+                    <a href="{{url_for('spotify_playlist', playlist_id=playlist.id)}}" class="link-light track">
+                        {{playlist.name}}
+                    </a>
+                </td>
+                <td>
+                    <a class="link-light"
+                        href="{{url_for('spotify_user', user_id=playlist.owner['id'])}}">{{playlist.owner["display_name"]}}</a>
+                </td>
+                <td class="unseen">
+                    {{playlist.type}}
+                </td>
+                <td class="unseen">
+                    {{playlist.tracks}}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script src="{{ url_for('static', filename='js/spotify.js')}}"></script>
+    <script src="{{url_for('static', filename='js/spotify/utils.js')}}"></script>
+    <script src="{{url_for('static', filename='js/spotify/playlists.js')}}"></script>
+    {% endblock %}
+</div>

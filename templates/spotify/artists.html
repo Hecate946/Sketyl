@@ -1,0 +1,62 @@
+<!-- Render a list of artists -->
+{% extends 'spotify/main.html' %} {% block head %} {{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/spotify/tracks.css') }}"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/spotify/artists.css') }}"/>
+{% endblock %} {% block body %} {{ super() }}
+<div class="artist-box bg-dark">
+    <div class="header d-flex flex-wrap">
+        <div class="p-2">
+            <h3 class="table-name">{{caption}}</h3>
+            {% if type == "top" %}
+            <div class="time-select-buttons">
+                <a
+                    href="{{ request.path }}?time_range=short_term"
+                    class="link-secondary"
+                    >Four Weeks</a
+                >
+                <a
+                    href="{{ request.path }}?time_range=medium_term"
+                    class="link-secondary"
+                    >Six Months</a
+                >
+                <a
+                    href="{{ request.path }}?time_range=long_term"
+                    class="link-secondary"
+                    >Few Years</a
+                >
+            </div>
+            {% endif %}
+        </div>
+        <div class="ms-auto p-2 d-flex align-items-end select-box">
+            <select class="form-select form-select-sm sorter">
+            {# Sorting by affinity only available for top artists. Change name but still sort by rank. #}
+                {% if type == "top" %}
+                <option selected value="order">
+                    Sort by artist affinity
+                </option>
+                {% else %}
+                <option selected value="order">
+                    Sort by artist order
+                </option>
+                {% endif %}
+                <option value="name">Sort by artist name</option>
+                <option value="popularity">Sort by artist popularity (least to most)</option>
+                <option value="followers">Sort by artist follower count (least to most)</option>
+                
+            </select>
+        </div>
+    </div>
+    <div class="parent d-flex flex-wrap justify-content-center">
+        {% for artist in artists %}
+        <div class="artist" data-artist="{{artist.json}}">
+            <img src="{{artist.image}}" class="image">
+            <a href="#" class="name">{{artist.index}}. {{artist.name}}</a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/spotify.js')}}"></script>
+    <script src="{{url_for('static', filename='js/spotify/utils.js')}}"></script>
+    <script src="{{url_for('static', filename='js/spotify/artists.js')}}"></script>
+    {% endblock %}
+</div>

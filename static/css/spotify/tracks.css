@@ -51,6 +51,7 @@
 
 .table {
   color: #edf2f4;
+  width: 100%;
 }
 
 .rows:hover {
@@ -116,5 +117,8 @@
   }
   .select-box select {
     width: 100%;
+  }
+  td {
+    font-size: 12px;
   }
 }

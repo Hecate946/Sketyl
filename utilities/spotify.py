@@ -261,7 +261,6 @@ class User:  # Spotify user w user_id
             batch_features = await self.get_audio_features(batch)
             audio_features.extend(batch_features["audio_features"])
             track_ids = track_ids[100:]
-        print(len(audio_features))
         return audio_features
 
     async def get_top_tracks(self, limit=50, time_range="short_term", *, offset=0):
@@ -466,6 +465,9 @@ class User:  # Spotify user w user_id
 
     async def get_artist(self, id):
         return await self.get(CONSTANTS.API_URL + f"artists/{id}")
+
+    async def get_user(self, user_id):
+        return await self.get(CONSTANTS.API_URL + f"users/{user_id}")
 
     async def get_user_playlists(self, username, limit=50, *, offset=0):
         params = {"limit": limit, "offset": offset}
@@ -742,6 +744,7 @@ class Formatting:
                 "index": index,
                 "image": self.get_image(artist),
                 "name": artist["name"],
+                "json": json.dumps(dict(artist, rank=index)),
             }
             for index, artist in enumerate(data, start=1)
         ]
@@ -773,18 +776,20 @@ class Formatting:
         ]
 
     def playlists(self, data):
+        print(data[0]["owner"])
         return [
             {
                 "index": index,
                 "image": self.get_image(playlist),
                 "name": playlist["name"],
-                "owner": playlist["owner"]["display_name"],
+                "owner": playlist["owner"],
                 "type": "Collaborative"
                 if playlist["collaborative"]
                 else "Public"
                 if playlist["public"]
                 else "Private",
                 "tracks": playlist["tracks"]["total"],
+                "json": json.dumps(dict(playlist, rank=index)),
             }
             for index, playlist in enumerate(data, start=1)
         ]
@@ -796,11 +801,13 @@ class Formatting:
                 "image": self.get_image(album["album"]),
                 "name": album["album"]["name"],
                 "id": album["album"]["id"],
-                "artist": ", ".join(
-                    [artist["name"] for artist in album["album"]["artists"]]
-                ),
+                "artists": [
+                    {"name": artist["name"], "id": artist["id"]}
+                    for artist in album["album"]["artists"]
+                ],
                 "release": self.release_date(album["album"]["release_date"]),
                 "tracks": album["album"]["total_tracks"],
+                "json": json.dumps(dict(album, rank=index)),
             }
             for index, album in enumerate(data, start=1)
         ]
