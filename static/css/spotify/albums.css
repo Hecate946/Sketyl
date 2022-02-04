@@ -13,10 +13,13 @@
   }
   
   .play-pause {
-      display: block;
-      height: 100%;
-      width: 100%;
-  }
+    top:0;
+    left: 0;
+    display: inline-block;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
   
   .play-pause:hover {
       cursor: pointer;

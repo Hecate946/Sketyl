@@ -22,6 +22,7 @@ $(function () {
 $(function () {
     $(document).on("click", ".play-pause", function () {
         var audio = $(this).children("audio");
+        console.log(audio)
         if (audio[0].paused) {
             if (window.audio !== undefined) {
                 // audio already existed, pause it.
@@ -161,9 +162,8 @@ $(function () {
     // render track page
     $(".track").on("click", function () {
         var trackJson = $(this).closest("tr").data("track"); // parent tr track.json
-        var url = `${window.location.origin}/spotify/track/${
-            trackJson.id
-        }?track_data=${btoa(trackJson.toString())}`; // redirect to page
+        var url = `${window.location.origin}/spotify/track/${trackJson.id
+            }?track_data=${btoa(trackJson.toString())}`; // redirect to page
         console.log(url);
 
         //     $.ajax({
