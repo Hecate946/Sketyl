@@ -15,44 +15,29 @@ class CONSTANTS:
     API_URL = "https://api.spotify.com/v1/"
     AUTH_URL = "https://accounts.spotify.com/authorize"
     TOKEN_URL = "https://accounts.spotify.com/api/token"
-    SCOPES = [
-        # Images
-        "ugc-image-upload",
-        # Spotify connect
-        "user-read-playback-state",
-        "user-modify-playback-state",
-        "user-read-currently-playing",
+    SCOPES = [ # Ask for bare minimum needed for functionality
         # Users
         "user-read-private",
-        "user-read-email",
-        # Follow
-        "user-follow-modify",
-        "user-follow-read",
         # Library
-        "user-library-modify",
         "user-library-read",
         # Listening history
-        "user-read-playback-position",
         "user-top-read",
         "user-read-recently-played",
         # Playlists
-        "playlist-modify-private",
         "playlist-read-collaborative",
         "playlist-read-private",
         "playlist-modify-public",
-        "streaming",
-        # "user-read-birthdate",
     ]
 
 
 class Oauth:
-    def __init__(self, bot_or_app):
+    def __init__(self, app):
         self.client_id = SPOTIFY.client_id
         self.client_secret = SPOTIFY.client_secret
         self.redirect_uri = SPOTIFY.redirect_uri
         self.scope = " ".join(CONSTANTS.SCOPES)
 
-        self.client = bot_or_app
+        self.client = app
 
     @property
     def headers(self):
@@ -76,7 +61,7 @@ class Oauth:
             "response_type": "code",
             "redirect_uri": self.redirect_uri,
             "scope": " ".join(CONSTANTS.SCOPES),
-            "show_dialog": True,  # Force them to re-agree
+            "show_dialog": True,  # If they agreed already, why show them the annoying auth page?
         }
         if state:
             params["state"] = state
@@ -134,13 +119,47 @@ class Oauth:
             return
         return token_info
 
+class BaseUtils:
+    def __init__(self) -> None:
+        pass
 
-class User:  # Spotify user w user_id
-    def __init__(self, user_id, token_info, bot_or_app):
+    def _get_image(self, obj):
+        try:
+            return obj["images"][0]["url"]
+        except (IndexError, KeyError):
+            return CONSTANTS.GREEN_ICON
+
+# Datatypes for Spotify Objects
+class Album(BaseUtils):
+    def __init__(self, data):
+        self.id = data["id"]
+        self.name = data["name"]
+        self.total_tracks = data["total_tracks"]
+        self.cover = self._get_image(data)
+        self.uri = "spotify:album:" + self.id
+
+        self.artists = [Artist(artist) for artist in data["artists"]]
+        self._tracks = []
+    
+        self.raw = data
+        self.json = json.dumps(data)
+
+    @property
+    def tracks(self):
+        if self._tracks:
+            return self._tracks
+        else:
+            pass
+
+class Artist(BaseUtils):
+    def __init__(self):
+        super().__init__()
+class User:  # Spotify user
+    def __init__(self, user_id, token_info, app):
         self.user_id = user_id
         self.token_info = token_info
-        self.client = bot_or_app
-        self.oauth = Oauth(bot_or_app)
+        self.client = app
+        self.oauth = Oauth(app)
 
     @staticmethod
     async def _get_user_id(app, token_info):
@@ -151,25 +170,24 @@ class User:  # Spotify user w user_id
         }
 
         profile = await app.http.get(CONSTANTS.API_URL + "me", res_method="json", headers=headers)
-        print(profile)
         return profile["id"]
 
     @classmethod
-    async def from_id(cls, user_id, bot_or_app):
+    async def from_id(cls, user_id, app):
         query = """
                 SELECT token_info
                 FROM spotify_auth
                 WHERE user_id = $1;
                 """
-        token_info = await bot_or_app.cxn.fetchval(query, user_id)
+        token_info = await app.cxn.fetchval(query, user_id)
 
         if token_info:
             token_info = json.loads(token_info)
-            return cls(user_id, token_info, bot_or_app)
+            return cls(user_id, token_info, app)
 
     @classmethod
-    async def from_token(cls, token_info, bot_or_app, *, user_id=None):
-        user_id = user_id or await cls._get_user_id(bot_or_app, token_info)
+    async def from_token(cls, token_info, app, *, user_id=None):
+        user_id = user_id or await cls._get_user_id(app, token_info)
         print(user_id)
         query = """
                 INSERT INTO spotify_auth
@@ -178,9 +196,9 @@ class User:  # Spotify user w user_id
                 DO UPDATE SET token_info = $2
                 WHERE spotify_auth.user_id = $1;
                 """
-        await bot_or_app.cxn.execute(query, user_id, json.dumps(token_info))
+        await app.cxn.execute(query, user_id, json.dumps(token_info))
 
-        return cls(user_id, token_info, bot_or_app)
+        return cls(user_id, token_info, app)
 
     async def get_token(self):
         return await self.oauth.get_access_token(self.user_id, self.token_info)
@@ -211,23 +229,10 @@ class User:  # Spotify user w user_id
     async def get_profile(self):
         return await self.get(CONSTANTS.API_URL + "me")
 
-    async def get_playback_state(self):
-        return await self.get(CONSTANTS.API_URL + "me/player")
-
-    async def get_currently_playing(self):
-        return await self.get(CONSTANTS.API_URL + "me/player/currently-playing")
-
-    async def get_devices(self):
-        return await self.get(CONSTANTS.API_URL + "me/player/devices")
-
+  
     async def get_recommendations(self, limit=100, **kwargs):
         params = {"limit": 100}.update(**kwargs)
         return await self.get(CONSTANTS.API_URL + "recommendations")
-
-    async def transfer_playback(self, devices, play: bool = False):
-        return await self.put(
-            CONSTANTS.API_URL + "me/player", json={"device_ids": devices, "play": play}
-        )
 
     async def get_recent_tracks(
         self, limit=50, *, before: int = None, after: int = None
@@ -379,77 +384,6 @@ class User:  # Spotify user w user_id
             albums.extend(album_batch)
         return albums
 
-    async def pause(self):
-        return await self.put(CONSTANTS.API_URL + "me/player/pause")
-
-    async def play(self, **kwargs):
-        return await self.put(CONSTANTS.API_URL + "me/player/play", json=kwargs)
-
-    async def play(self, **kwargs):
-        return await self.put(CONSTANTS.API_URL + "me/player/play", json=kwargs)
-
-    async def skip_to_next(self):
-        return await self.client.http.post(
-            CONSTANTS.API_URL + "me/player/next",
-            headers=await self.auth(),
-            res_method=None,
-        )
-
-    async def skip_to_previous(self):
-        return await self.client.http.post(
-            CONSTANTS.API_URL + "me/player/previous",
-            headers=await self.auth(),
-            res_method=None,
-        )
-
-    async def seek(self, position):
-        params = {"position_ms": position * 1000}
-        query_params = urlencode(params)
-        return await self.put(CONSTANTS.API_URL + "me/player/seek?" + query_params)
-
-    async def repeat(self, option):
-        params = {"state": option}
-        query_params = urlencode(params)
-        return await self.put(CONSTANTS.API_URL + "me/player/repeat?" + query_params)
-
-    async def shuffle(self, option: bool):
-        params = {"state": option}
-        query_params = urlencode(params)
-        return await self.put(CONSTANTS.API_URL + "me/player/shuffle?" + query_params)
-
-    async def volume(self, amount):
-        params = {"volume_percent": amount}
-        query_params = urlencode(params)
-        return await self.put(CONSTANTS.API_URL + "me/player/volume?" + query_params)
-
-    async def enqueue(self, uri):
-        params = {"uri": uri}
-        query_params = urlencode(params)
-        return await self.client.http.post(
-            CONSTANTS.API_URL + "me/player/queue?" + query_params,
-            headers=await self.auth(),
-            res_method=None,
-        )
-
-    async def get_followed_artists(self, limit=50, after: str = None):
-        params = {"limit": limit, "type": "artist"}
-        if after:
-            params["after"] = after
-
-        query_params = urlencode(params)
-        return await self.get(CONSTANTS.API_URL + "me/following?" + query_params)
-
-    async def get_all_followed_artists(self, max_artists: int = 100):
-        artists = []
-        batch = await self.get_followed_artists()
-        batch_artists = batch["artists"]["items"]
-        artists.extend(batch_artists)
-        while len(batch_artists) == 50:
-            batch = await self.get_followed_artists(batch_artists[-1]["id"])
-            batch_artists = batch["artists"]["items"]
-            artists.extend(batch_artists)
-
-        return artists
 
     async def get_friends(self):
         data = await self.get_all_playlists()

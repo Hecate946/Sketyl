@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 import os
 import json
 import asyncio
-from time import time
 import aiohttp
 import asyncpg
 import secrets
@@ -134,116 +133,6 @@ async def spotify_disconnect():
     response = await make_response(redirect(url_for("_spotify")))
     response.set_cookie("user_id", "", expires=0)
     return response
-
-
-@app.route("/spotify/track/<user_id>")
-async def spotify_user(user_id):
-    current_user_id = request.cookies.get("user_id")
-
-    if not current_user_id:  # User is not logged in, redirect them back
-        session["referrer"] = url_for(
-            "spotify_playlist", user_id=user_id
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    current_user = await spotify.User.from_id(current_user_id, app)
-    if not current_user:  # Haven't connected their account.
-        session["referrer"] = url_for(
-            "spotify_playlist", user_id=user_id
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    user_id = await current_user.get_user(user_id)
-    return await render_template("spotify/user.html", user_id=user_id)
-
-
-@app.route("/spotify/track/<playlist_id>")
-async def spotify_playlist(playlist_id):
-    user_id = request.cookies.get("user_id")
-
-    if not user_id:  # User is not logged in, redirect them back
-        session["referrer"] = url_for(
-            "spotify_playlist", playlist_id=playlist_id
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    user = await spotify.User.from_id(user_id, app)
-    if not user:  # Haven't connected their account.
-        session["referrer"] = url_for(
-            "spotify_playlist", playlist_id=playlist_id
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    playlist = await user.get_playlist(playlist_id)
-    return await render_template("spotify/playlist.html", playlist=playlist)
-
-
-@app.route("/spotify/track/<album_id>")
-async def spotify_album(album_id):
-    user_id = request.cookies.get("user_id")
-
-    if not user_id:  # User is not logged in, redirect them back
-        session["referrer"] = url_for(
-            "spotify_album", album_id=album_id
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    user = await spotify.User.from_id(user_id, app)
-    if not user:  # Haven't connected their account.
-        session["referrer"] = url_for(
-            "spotify_album", album_id=album_id
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    tracks = await user.get_all_album_tracks(album_id)
-    features = await user.get_all_audio_features([i["track"]["id"] for i in tracks])
-    data = spotify.formatting.liked_tracks(tracks, features)
-    caption = "Album Tracks"
-    return await render_template(
-        "spotify/tracks.html", type="album", tracks=tracks, data=data, caption=caption
-    )
-
-
-@app.route("/spotify/track/<artist_id>")
-async def spotify_artist(artist_id):
-    user_id = request.cookies.get("user_id")
-
-    if not user_id:  # User is not logged in, redirect them back
-        session["referrer"] = url_for(
-            "spotify_artist", artist_id=artist_id
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    user = await spotify.User.from_id(user_id, app)
-    if not user:  # Haven't connected their account.
-        session["referrer"] = url_for(
-            "spotify_artist", artist_id=artist_id
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    artist = await user.get_artist(artist_id)
-    return await render_template("spotify/artist.html", artist=artist)
-
-
-@app.route("/spotify/track/<track_id>")
-async def spotify_track(track_id):
-    user_id = request.cookies.get("user_id")
-
-    if not user_id:  # User is not logged in, redirect them back
-        session["referrer"] = url_for(
-            "spotify_track", track_id=track_id
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    user = await spotify.User.from_id(user_id, app)
-    if not user:  # Haven't connected their account.
-        session["referrer"] = url_for(
-            "spotify_track", track_id=track_id
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    track = await user.get_full_track(track_id)
-    return await render_template("spotify/track.html", track=track)
 
 
 @app.route("/spotify/recent")
@@ -485,55 +374,6 @@ async def spotify_top(spotify_type):
 @app.route("/g")
 async def g():
     return await render_template("spotify/genres.html", genres=constants.spotify_genres)
-
-
-@app.route("/spotify/following")
-async def spotify_following():
-    user_id = request.cookies.get("user_id")
-
-    if not user_id:  # User is not logged in, redirect them back
-        session["referrer"] = url_for(
-            "spotify_following",
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    user = await spotify.User.from_id(user_id, app)
-    if not user:
-        session["referrer"] = url_for(
-            "spotify_following",
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    artists = await user.get_all_followed_artists()
-
-    data = spotify.formatting.top_artists(artists)
-    caption = "Followed Artists"
-    return await render_template(
-        "spotify/artists.html", type="followed", artists=data, caption=caption
-    )
-
-
-@app.route("/spotify/friends")
-async def spotify_friends():
-    user_id = request.cookies.get("user_id")
-
-    if not user_id:  # User is not logged in, redirect them back
-        session["referrer"] = url_for(
-            "spotify_following",
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    user = await spotify.User.from_id(user_id, app)
-    if not user:
-        session["referrer"] = url_for(
-            "spotify_following",
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    friends = await user.get_friends()
-
-    return str(friends)
-
 
 # INTERNALS
 
