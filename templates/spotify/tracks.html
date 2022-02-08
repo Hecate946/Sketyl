@@ -1,8 +1,5 @@
 {% extends 'spotify/main.html' %} {% block head %} {{ super() }}
-<link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/spotify/tracks.css') }}"
-/>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/spotify/tracks.css') }}" />
 {% endblock %} {% block body %} {{ super() }}
 <div class="table-box bg-dark table-responsive">
     <div class="header d-flex flex-wrap">
@@ -10,27 +7,15 @@
             <h3 class="table-name">{{caption}}</h3>
             {% if type == "top" %}
             <div class="time-select-buttons">
-                <a
-                    href="{{ request.path }}?time_range=short_term"
-                    class="link-secondary"
-                    >Four Weeks</a
-                >
-                <a
-                    href="{{ request.path }}?time_range=medium_term"
-                    class="link-secondary"
-                    >Six Months</a
-                >
-                <a
-                    href="{{ request.path }}?time_range=long_term"
-                    class="link-secondary"
-                    >Few Years</a
-                >
+                <a href="{{ request.path }}?time_range=short_term" class="link-secondary">Four Weeks</a>
+                <a href="{{ request.path }}?time_range=medium_term" class="link-secondary">Six Months</a>
+                <a href="{{ request.path }}?time_range=long_term" class="link-secondary">Few Years</a>
             </div>
             {% endif %}
         </div>
         <div class="ms-auto p-2 d-flex align-items-end select-box">
             <select class="form-select form-select-sm table-sort">
-            {# Sorting by affinity only available for top tracks. Change name but still sort by rank. #}
+                {# Sorting by affinity only available for top tracks. Change name but still sort by rank. #}
                 {% if type == "top" %}
                 <option selected value="order">
                     Sort by track affinity
@@ -71,19 +56,16 @@
             </tr>
         </thead>
         <tbody>
-            {% for track in data.tracks %}
+            {% for track in tracks %}
             <tr class="rows" data-track="{{track.json}}">
                 <th scope="row">{{track.index}}</th>
                 <td>
                     <div class="container">
                         <div class="overlay">
-                            <img class="cover" src="{{track.image}}" />
+                            <img class="cover" src="{{track.cover}}" />
                             <span class="icon play-pause">
                                 <i class="fa fa-play"></i>
-                                <audio
-                                    class="audio"
-                                    src="{{track.preview}}"
-                                ></audio>
+                                <audio class="audio" src="{{track.preview}}"></audio>
                             </span>
                         </div>
                     </div>
@@ -95,11 +77,7 @@
                 </td>
                 <td>
                     {% for artist in track.artists %}
-                    <a
-                        class="link-light"
-                        href="{{artist['external_urls']['spotify']}}"
-                        >{{artist["name"]}}</a
-                    >
+                    <a class="link-light" href="{{artist.url}}" FIX THIS>{{artist.name}}</a>
                     {% endfor %}
                 </td>
                 <td class="unseen">{{track.duration}}</td>
@@ -108,15 +86,10 @@
         </tbody>
     </table>
     <div class="d-flex align-items-center justify-content-center">
-        <button
-            class="spinner-button btn btn-primary playlist-button"
-            role="button"
-            aria-pressed="true"
-            data-track_ids="{{data.track_ids}}"
-            data-type="{{type}}"
-        >
+        <!-- <button class="spinner-button btn btn-primary playlist-button" role="button" aria-pressed="true"
+            data-track_ids="{{data.track_ids}}" data-type="{{type}}">
             Create Playlist
-        </button>
+        </button> -->
     </div>
     <script src="{{ url_for('static', filename='js/spotify.js')}}"></script>
     <script src="{{url_for('static', filename='js/spotify/utils.js')}}"></script>

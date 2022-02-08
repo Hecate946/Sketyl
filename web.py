@@ -75,7 +75,7 @@ async def index():
 @app.route("/spotify")
 async def _spotify():
     user_id = request.cookies.get("user_id")
-    if not user_id: # Have them log in
+    if not user_id:  # Have them log in
         return await render_template("spotify/login.html")
 
     user = await spotify.User.from_id(user_id, app)
@@ -90,6 +90,7 @@ async def _spotify():
         data=json.dumps([len(decades[decade]["tracks"]) for decade in decades]),
         colors=json.dumps(constants.colors[: len(decades.keys())]),
     )
+
 
 @app.route("/spotify/connect")
 async def spotify_connect():
@@ -350,16 +351,18 @@ async def spotify_top(spotify_type):
         )
 
     if spotify_type == "tracks":
-        tracks = await user.get_all_top_tracks(time_range=time_range)
-        features = await user.get_all_audio_features([t["id"] for t in tracks])
-        data = spotify.formatting.top_tracks(tracks, features)
+        data = await user.get_top_tracks(time_range=time_range)
+        features = await user.get_audio_features([t["id"] for t in data])
+        tracks = [
+            spotify.Track(track, features=af, index=rank)
+            for (rank, (track, af)) in enumerate(zip(data, features), start=1)
+        ]
         caption = "Top Tracks"
         return await render_template(
             "spotify/tracks.html",
             type="top",
-            data=data,
+            tracks=tracks,
             caption=caption,
-            tracks=json.dumps(data),
         )
 
     if spotify_type == "genres":
@@ -374,6 +377,7 @@ async def spotify_top(spotify_type):
 @app.route("/g")
 async def g():
     return await render_template("spotify/genres.html", genres=constants.spotify_genres)
+
 
 # INTERNALS
 
@@ -439,6 +443,14 @@ async def p():
     user = await spotify.User.from_id(user_id, app)
     token = await user.get_token()
     return await render_template("spotify/player.html", token=token)
+
+
+@app.route("/album")
+async def al():
+    user_id = request.cookies.get("user_id")
+    user = await spotify.User.from_id(user_id, app)
+    data = await user.get_saved_albums()
+    return str(data)
 
 
 if __name__ == "__main__":

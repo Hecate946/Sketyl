@@ -2,19 +2,14 @@
 {% block head %}
 {{ super() }}
 
-<link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/spotify/chart.css') }}"
-/>
-<link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/spotify/tracks.css') }}"
-/>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/spotify/chart.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/spotify/tracks.css') }}" />
 {% endblock %}
-{% block body %} 
+{% block body %}
 {{super()}}
 <div class="heading text-center">
-    <h1>The music you listen to most comes from across {{decades.keys()|length}} decades. Explore your favorite tracks from each decade by expanding the dropdowns below.</h1>
+    <h1>The music you listen to most comes from across {{decades.keys()|length}} decades. Explore your favorite tracks
+        from each decade by expanding the dropdowns below.</h1>
 </div>
 <div class="chart-container">
     <canvas id="chartcanvas" data-labels="{{labels}}" data-colors="{{colors}}" data-decades="{{data}}"></canvas>
@@ -24,62 +19,57 @@
 <div class="accordion" id="decades">
     {% for decade, tracks in decades.items() %}
     <div class="accordion-item">
-      <h2 class="accordion-header" id="heading{{decade}}">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{decade}}" aria-expanded="false" aria-controls="collapse{{decade}}">
-          {{decade}}
-        </button>
-      </h2>
-      <div id="collapse{{decade}}" class="accordion-collapse collapse" aria-labelledby="heading{{decade}}" data-bs-parent="#decades">
-        <div class="accordion-body">
-          <table class="table align-middle bg-dark">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Cover</th>
-                    <th scope="col">Track</th>
-                    <th scope="col">Artist</th>
-                    <th class="unseen" scope="col">Duration</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for track in tracks["tracks"] %}
-                <tr class="rows" data-track="{{track.json}}">
-                    <th scope="row">{{track.index}}</th>
-                    <td>
-                        <div class="container">
-                            <div class="overlay">
-                                <img class="cover" src="{{track.image}}" />
-                                <span class="icon play-pause">
-                                    <i class="fa fa-play"></i>
-                                    <audio
-                                        class="audio"
-                                        src="{{track.preview}}"
-                                    ></audio>
-                                </span>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <a href="{{track.url}}" class="link-light track">
-                            {{track.name}}
-                        </a>
-                    </td>
-                    <td>
-                        {% for artist in track.artists %}
-                        <a
-                            class="link-light"
-                            href="{{artist.external_urls.spotify}}"
-                            >{{artist["name"]}}</a
-                        >
+        <h2 class="accordion-header" id="heading{{decade}}">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapse{{decade}}" aria-expanded="false" aria-controls="collapse{{decade}}">
+                {{decade}}
+            </button>
+        </h2>
+        <div id="collapse{{decade}}" class="accordion-collapse collapse" aria-labelledby="heading{{decade}}"
+            data-bs-parent="#decades">
+            <div class="accordion-body">
+                <table class="table align-middle bg-dark">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Cover</th>
+                            <th scope="col">Track</th>
+                            <th scope="col">Artist</th>
+                            <th class="unseen" scope="col">Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for track in tracks["tracks"] %}
+                        <tr class="rows" data-track="{{track.json}}">
+                            <th scope="row">{{track.index}}</th>
+                            <td>
+                                <div class="container">
+                                    <div class="overlay">
+                                        <img class="cover" src="{{track.image}}" />
+                                        <span class="icon play-pause">
+                                            <i class="fa fa-play"></i>
+                                            <audio class="audio" src="{{track.preview}}"></audio>
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="{{track.url}}" class="link-light track">
+                                    {{track.name}}
+                                </a>
+                            </td>
+                            <td>
+                                {% for artist in track.artists %}
+                                <a class="link-light" href="#" FIX THIS>{{artist["name"]}}</a>
+                                {% endfor %}
+                            </td>
+                            <td class="unseen">{{track.duration}}</td>
+                        </tr>
                         {% endfor %}
-                    </td>
-                    <td class="unseen">{{track.duration}}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
-      </div>
     </div>
     {% endfor %}
 
@@ -89,4 +79,4 @@
     <script src="{{url_for('static', filename='js/spotify/utils.js')}}"></script>
     <script src="{{url_for('static', filename='js/spotify/tracks.js')}}"></script>
 
-{% endblock %}
+    {% endblock %}

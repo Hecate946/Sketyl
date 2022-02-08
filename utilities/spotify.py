@@ -5,7 +5,7 @@ import time
 import json
 
 from datetime import datetime, date
-from utilities import utils
+from utilities import utils, cache
 from config import SPOTIFY
 
 
@@ -15,7 +15,7 @@ class CONSTANTS:
     API_URL = "https://api.spotify.com/v1/"
     AUTH_URL = "https://accounts.spotify.com/authorize"
     TOKEN_URL = "https://accounts.spotify.com/api/token"
-    SCOPES = [ # Ask for bare minimum needed for functionality
+    SCOPES = [  # Ask for bare minimum needed for functionality
         # Users
         "user-read-private",
         # Library
@@ -119,6 +119,7 @@ class Oauth:
             return
         return token_info
 
+
 class BaseUtils:
     def __init__(self) -> None:
         pass
@@ -129,9 +130,11 @@ class BaseUtils:
         except (IndexError, KeyError):
             return CONSTANTS.GREEN_ICON
 
+
 # Datatypes for Spotify Objects
 class Album(BaseUtils):
     def __init__(self, data):
+        super().__init__()
         self.id = data["id"]
         self.name = data["name"]
         self.total_tracks = data["total_tracks"]
@@ -139,21 +142,54 @@ class Album(BaseUtils):
         self.uri = "spotify:album:" + self.id
 
         self.artists = [Artist(artist) for artist in data["artists"]]
-        self._tracks = []
-    
+        self.tracks = [Track(track) for track in data["tracks"]["items"]]
+
         self.raw = data
         self.json = json.dumps(data)
 
-    @property
-    def tracks(self):
-        if self._tracks:
-            return self._tracks
-        else:
-            pass
 
 class Artist(BaseUtils):
-    def __init__(self):
+    def __init__(self, data):
         super().__init__()
+        self.id = data["id"]
+        self.name = data["name"]
+        self.cover = self._get_image(data)
+        self.uri = "spotify:artist:" + self.id
+        self.popularity = data.get("popularity", 0)
+        self.followers = data.get("followers", {}).get("total", 0)
+        self.genres = data.get("genres", [])
+
+        self.raw = data
+        self.json = json.dumps(data)
+
+        self.top_tracks = []
+        self.related_artists = []
+        # self.albums = []
+
+
+class Track(BaseUtils):
+    def __init__(self, data, *, features=None, index=None):
+        super().__init__()
+        self.id = data["id"]
+        self.name = data["name"]
+        self.cover = self._get_image(data)
+        self.uri = "spotify:track:" + self.id
+        self.url = data["external_urls"]["spotify"]
+        self.popularity = data["popularity"]
+        self.duration = utils.parse_duration(data["duration_ms"])
+        self.raw_duration = data["duration_ms"]
+        self.preview = data["preview_url"]
+
+        self.album = Album(data["album"])  # parent album
+        self.artists = [Artist(a) for a in data["artists"]]
+
+        self.raw = data
+        self.json = json.dumps(data)
+
+        self.features = features
+        self.index = index
+
+
 class User:  # Spotify user
     def __init__(self, user_id, token_info, app):
         self.user_id = user_id
@@ -169,7 +205,9 @@ class User:  # Spotify user
             "Content-Type": "application/json",
         }
 
-        profile = await app.http.get(CONSTANTS.API_URL + "me", res_method="json", headers=headers)
+        profile = await app.http.get(
+            CONSTANTS.API_URL + "me", res_method="json", headers=headers
+        )
         return profile["id"]
 
     @classmethod
@@ -188,7 +226,6 @@ class User:  # Spotify user
     @classmethod
     async def from_token(cls, token_info, app, *, user_id=None):
         user_id = user_id or await cls._get_user_id(app, token_info)
-        print(user_id)
         query = """
                 INSERT INTO spotify_auth
                 VALUES ($1, $2)
@@ -229,7 +266,6 @@ class User:  # Spotify user
     async def get_profile(self):
         return await self.get(CONSTANTS.API_URL + "me")
 
-  
     async def get_recommendations(self, limit=100, **kwargs):
         params = {"limit": 100}.update(**kwargs)
         return await self.get(CONSTANTS.API_URL + "recommendations")
@@ -267,37 +303,37 @@ class User:  # Spotify user
 
         return liked_tracks
 
+    @cache.cache()
     async def get_audio_features(self, track_ids):
-        params = {"ids": ",".join(track_ids)}
-        query = urlencode(params)
-        return await self.get(CONSTANTS.API_URL + "audio-features?" + query)
+        features = []
+        while len(track_ids) > 0:
+            params = {"ids": ",".join(track_ids[:100])}
+            query = urlencode(params)
+            batch = await self.get(CONSTANTS.API_URL + "audio-features?" + query)
+            features.extend(batch["audio_features"])
+            del track_ids[:100]
 
-    async def get_all_audio_features(self, track_ids):
-        audio_features = []
-        while track_ids:
-            batch = track_ids[:100]
-            batch_features = await self.get_audio_features(batch)
-            audio_features.extend(batch_features["audio_features"])
-            track_ids = track_ids[100:]
-        return audio_features
+        return features
 
-    async def get_top_tracks(self, limit=50, time_range="short_term", *, offset=0):
-        params = {"limit": limit, "time_range": time_range, "offset": offset}
-        query_params = urlencode(params)
-        return await self.get(CONSTANTS.API_URL + "me/top/tracks?" + query_params)
+    @cache.cache(
+        maxsize=60 * 5, strategy=cache.Strategy.timed
+    )  # Only get new top tracks after 5 minutes
+    async def get_top_tracks(self, tracks: int = 100, time_range="short_term"):
+        """
+        Get the current users top tracks.
+        Specify # of tracks and time period.
+        Returns list of tracks
+        """
 
-    async def get_all_top_tracks(self, time_range="short_term", max_tracks: int = 100):
-        top_tracks = []
-        offset = 0
-        batch = await self.get_top_tracks(time_range=time_range)
-        batch_tracks = batch["items"]
-        top_tracks.extend(batch_tracks)
-        pred = lambda mt: ((offset + 1) * 50) < mt
-        while len(batch_tracks) == 50 and pred(max_tracks):
-            offset += 1
-            batch = await self.get_top_tracks(offset=offset * 50)
-            batch_tracks = batch["items"]
-            top_tracks.extend(batch_tracks)
+        top_tracks = []  # list of tracks
+        offset = 0  # Start from beginning
+        while tracks > 0:
+            limit = tracks if tracks < 50 else 50
+            params = {"limit": limit, "time_range": time_range, "offset": offset}
+            query = urlencode(params)
+            batch = await self.get(CONSTANTS.API_URL + "me/top/tracks?" + query)
+            top_tracks.extend(batch["items"])
+            tracks -= limit
 
         return top_tracks
 
@@ -383,7 +419,6 @@ class User:  # Spotify user
             album_batch = batch["items"]
             albums.extend(album_batch)
         return albums
-
 
     async def get_friends(self):
         data = await self.get_all_playlists()
