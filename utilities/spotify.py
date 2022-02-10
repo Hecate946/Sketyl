@@ -338,12 +338,6 @@ class User:  # Current user's spotify instance
         return features
 
     @cache.cache(strategy=cache.Strategy.timed)
-    async def get_recent_tracks(self, tracks: int = 50):
-        query = urlencode({"limit": tracks if tracks < 50 else 50})
-        batch = await self.get(CONSTANTS.API_URL + "me/player/recently-played?" + query)
-        return [item["track"] for item in batch["items"]]
-
-    @cache.cache(strategy=cache.Strategy.timed)
     async def get_liked_tracks(self, tracks: int = 100):
         """
         Get the current users liked tracks.
@@ -366,40 +360,64 @@ class User:  # Current user's spotify instance
         return liked_tracks
 
     @cache.cache(strategy=cache.Strategy.timed)
-    async def get_top_tracks(self, tracks: int = 100, time_range="short_term"):
+    async def get_recent_tracks(self, tracks: int = 50):
+        """
+        Get the current users recent tracks.
+        Specify # of tracks.
+        Returns list of tracks
+        Max items: 99
+        """
+        query = urlencode({"limit": tracks if tracks < 50 else 50})
+        batch = await self.get(CONSTANTS.API_URL + "me/player/recently-played?" + query)
+        return [item["track"] for item in batch["items"]]
+
+    @cache.cache(strategy=cache.Strategy.timed)
+    async def get_top_tracks(self, tracks: int = 99, time_range="short_term"):
         """
         Get the current users top tracks.
         Specify # of tracks and time period.
         Returns list of tracks
+        Max items: 99
         """
-
         top_tracks = []  # list of tracks
-        offset = 0  # Start from beginning
-        while tracks > 0:
-            limit = tracks if tracks < 50 else 50
-            query = urlencode(
-                {"limit": limit, "time_range": time_range, "offset": offset}
-            )
+        tracks = tracks if tracks < 100 else 99  # Spotify limit.
+        limit = tracks if tracks < 50 else 50
+        query = urlencode({"limit": limit, "time_range": time_range, "offset": 0})
+        batch = await self.get(CONSTANTS.API_URL + "me/top/tracks?" + query)
+        top_tracks.extend(batch["items"])
+
+        tracks -= limit
+
+        if tracks > 0:
+            query = urlencode({"limit": 50, "time_range": time_range, "offset": tracks})
             batch = await self.get(CONSTANTS.API_URL + "me/top/tracks?" + query)
-            top_tracks.extend(batch["items"])
-            tracks -= limit
-            offset += 1
+            top_tracks.extend(batch["items"][1:])
 
         return top_tracks
 
     @cache.cache(strategy=cache.Strategy.timed)
-    async def get_top_artists(self, artists: int = 100, time_range="short_term"):
-        top_artists = []  # list of tracks
-        offset = 0  # Start from beginning
-        while artists > 0:
-            limit = artists if artists < 50 else 50
+    async def get_top_artists(self, artists: int = 99, time_range="short_term"):
+        """
+        Get the current users top artists.
+        Specify # of artists and time period.
+        Returns list of artists
+        Max items: 99
+        """
+        top_artists = []  # list of artists
+        artists = artists if artists < 100 else 99  # Spotify limit.
+        limit = artists if artists < 50 else 50
+        query = urlencode({"limit": limit, "time_range": time_range, "offset": 0})
+        batch = await self.get(CONSTANTS.API_URL + "me/top/artists?" + query)
+        top_artists.extend(batch["items"])
+
+        artists -= limit
+
+        if artists > 0:
             query = urlencode(
-                {"limit": limit, "time_range": time_range, "offset": offset}
+                {"limit": 50, "time_range": time_range, "offset": artists}
             )
             batch = await self.get(CONSTANTS.API_URL + "me/top/artists?" + query)
-            top_artists.extend(batch["items"])
-            artists -= limit
-            offset += 1
+            top_artists.extend(batch["items"][1:])
 
         return top_artists
 

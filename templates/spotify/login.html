@@ -6,11 +6,16 @@
 {% endblock %}
 {% block body %}
 
-  <div class="text-center">
+<div class="text-center">
+  <div>
     <h1>Sketyl Spotify</h1>
-    <p class="lead">Sketyl is a web application <s>designed</s> being designed to provide numerous music features. Features like genre exploration, dynamic models showing your varying music taste over time, personalized recommendations, the list goes on... But yeah, it currently does none of that. There are some Spotify stats though! So if you have nothing better to do, click that green button and connect your Spotify account.</p>
+    <p class="lead">Sketyl is a web application <s>designed</s> being designed to provide numerous music features.
+      Features like genre exploration, dynamic models showing your varying music taste over time, personalized
+      recommendations, the list goes on... But yeah, it currently does none of that. There are some Spotify stats
+      though! So if you have nothing better to do, click that green button and connect your Spotify account.</p>
     <p class="lead">
       <a href="{{url_for('spotify_connect')}}" class="btn btn-lg btn-success fw-bold border-white">Connect</a>
     </p>
   </div>
+</div>
 {% endblock %}
