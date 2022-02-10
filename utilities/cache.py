@@ -5,7 +5,13 @@ import time
 
 from functools import wraps
 
-from lru import LRU
+CACHE = {}
+
+
+def _get_cached_value(id_or_ids):
+    if type(id_or_ids) is list:
+        return [CACHE[_id] for _id in id_or_ids]
+    return CACHE[id_or_ids]
 
 
 def _wrap_and_store_coroutine(cache, key, coro):
@@ -31,6 +37,7 @@ class ExpiringCache(dict):
         super().__init__()
 
     def __verify_cache_integrity(self):
+        # Have to do this in two steps...
         current_time = time.monotonic()
         to_remove = [
             k for k in self.keys() if current_time > (self.__timekeeper[k] + self.__ttl)
@@ -52,26 +59,21 @@ class ExpiringCache(dict):
 
 
 class Strategy(enum.Enum):
-    lru = 1
-    raw = 2
-    timed = 3
+    timed = 1
+    internal = 2
+    raw = 3
 
 
-def cache(maxsize=128, strategy=Strategy.lru, ignore_kwargs=False):
+def cache(strategy=Strategy.timed, ttl=3600):
     def decorator(func):
-        if strategy is Strategy.lru:
-            _internal_cache = LRU(maxsize)
-            _stats = _internal_cache.get_stats
-        elif strategy is Strategy.raw:
+        if strategy is Strategy.timed:
+            _internal_cache = ExpiringCache(ttl)
+        elif strategy is Strategy.internal:
             _internal_cache = {}
-            _stats = lambda: (0, 0)
-        elif strategy is Strategy.timed:
-            _internal_cache = ExpiringCache(maxsize)
-            _stats = lambda: (0, 0)
+        elif strategy is Strategy.raw:
+            _internal_cache = CACHE
 
         def _make_key(args, kwargs):
-            # this is a bit of a cluster fuck
-            # we do care what 'self' parameter is when we __repr__ it
             def _true_repr(o):
                 if o.__class__.__repr__ is object.__repr__:
                     return f"<{o.__class__.__module__}.{o.__class__.__name__}>"
@@ -79,23 +81,19 @@ def cache(maxsize=128, strategy=Strategy.lru, ignore_kwargs=False):
 
             key = [f"{func.__module__}.{func.__name__}"]
             key.extend(_true_repr(o) for o in args)
-            if not ignore_kwargs:
-                for k, v in kwargs.items():
-                    # note: this only really works for this use case in particular
-                    # I want to pass asyncpg.Connection objects to the parameters
-                    # however, they use default __repr__ and I do not care what
-                    # connection is passed in, so I needed a bypass.
-                    if k == "connection":
-                        continue
 
-                    key.append(_true_repr(k))
-                    key.append(_true_repr(v))
+            for k, v in kwargs.items():
+
+                key.append(_true_repr(k))
+                key.append(_true_repr(v))
 
             return ":".join(key)
 
         @wraps(func)
         def wrapper(*args, **kwargs):
+
             key = _make_key(args, kwargs)
+
             try:
                 value = _internal_cache[key]
             except KeyError:
@@ -133,7 +131,6 @@ def cache(maxsize=128, strategy=Strategy.lru, ignore_kwargs=False):
         wrapper.cache = _internal_cache
         wrapper.get_key = lambda *args, **kwargs: _make_key(args, kwargs)
         wrapper.invalidate = _invalidate
-        wrapper.get_stats = _stats
         wrapper.invalidate_containing = _invalidate_containing
         return wrapper
 

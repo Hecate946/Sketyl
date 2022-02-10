@@ -14,7 +14,7 @@
                 <option value="name">Sort by playlist name</option>
                 <option value="owner">Sort by owner</option>
                 <option value="tracks">
-                    Sort by number of tracks (most to least)
+                    Sort by number of tracks (least to most)
                 </option>
             </select>
         </div>
@@ -35,22 +35,21 @@
             <tr class="rows" data-playlist="{{playlist.json}}">
                 <th scope="row">{{playlist.index}}</th>
                 <td>
-                    <img class="cover" src="{{playlist.image}}">
+                    <img class="cover" src="{{playlist.cover}}">
                 </td>
                 <td>
-                    <a href="{{url_for('spotify_playlist', playlist_id=playlist.id)}}" class="link-light track">
+                    <a href="{{url_for('playlists', playlist_id=playlist.id)}}" class="link-light track">
                         {{playlist.name}}
                     </a>
                 </td>
                 <td>
-                    <a class="link-light"
-                        href="{{url_for('spotify_user', user_id=playlist.owner['id'])}}">{{playlist.owner["display_name"]}}</a>
+                    <a class="link-light" href="{{playlist.owner.url}}">{{playlist.owner.name}}</a>
                 </td>
                 <td class="unseen">
                     {{playlist.type}}
                 </td>
                 <td class="unseen">
-                    {{playlist.tracks}}
+                    {{playlist.total_tracks}}
                 </td>
             </tr>
             {% endfor %}

@@ -48,7 +48,7 @@
     <table class="table align-middle">
         <thead>
             <tr>
-                <th scope="col">#</th>
+                <th class="rank" scope="col">#</th>
                 <th scope="col">Cover</th>
                 <th scope="col">Track</th>
                 <th scope="col">Artist</th>
@@ -86,10 +86,10 @@
         </tbody>
     </table>
     <div class="d-flex align-items-center justify-content-center">
-        <!-- <button class="spinner-button btn btn-primary playlist-button" role="button" aria-pressed="true"
-            data-track_ids="{{data.track_ids}}" data-type="{{type}}">
+        <button class="spinner-button btn btn-primary playlist-button" role="button" aria-pressed="true"
+            data-track_ids="{{track_ids}}" data-type="{{type}}">
             Create Playlist
-        </button> -->
+        </button>
     </div>
     <script src="{{ url_for('static', filename='js/spotify.js')}}"></script>
     <script src="{{url_for('static', filename='js/spotify/utils.js')}}"></script>
