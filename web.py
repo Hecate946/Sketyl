@@ -94,8 +94,6 @@ async def _spotify():
 @app.route("/spotify/connect")
 async def spotify_connect():
     code = request.args.get("code")
-    # We don't mind if they're re-authorizing, just give them the same id.
-    user_id = request.cookies.get("user_id")
 
     if not code:  # Need code, redirect user to spotify
         return redirect(spotify.Oauth(app).get_auth_url())
@@ -104,9 +102,7 @@ async def spotify_connect():
     if not token_info:  # Invalid code or user rejection, redirect them back.
         return redirect(spotify.Oauth(app).get_auth_url())
 
-    sp_user = await spotify.User.from_token(
-        token_info, app, user_id=user_id
-    )  # Save user
+    sp_user = await spotify.User.from_token(token_info, app)  # Save user
     redirect_location = session.pop("referrer", url_for("_spotify"))
     response = await make_response(redirect(redirect_location))
 
