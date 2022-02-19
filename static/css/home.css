@@ -1,0 +1,108 @@
+* {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+  }
+
+h1 {
+    color: #40434a;
+    font-size: 30px;
+}
+.background {
+    position: relative;
+    width: 100%;
+  }
+  
+.background .landscape {
+    width: 100%;
+    height: auto;
+}
+  
+.background .btn {
+    background-color: #000000;
+    color: white;
+    font-size: 25px;
+    padding: 15px 30px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    text-align: center;
+    opacity: 0.4;
+    transition: 0.3s ease-in-out;
+}
+  
+.background .btn:hover {
+    opacity: 0.6;
+}
+
+.background h1 {
+    color: #FFFFFF;
+    font-size: 100px;
+    font-weight: bold;
+}
+
+.background h2 {
+    color: #FFFFFF;
+    font-size: 25px;
+    padding: 10px 0;
+    font-weight: lighter;
+}
+
+.content {
+    width: 100%;
+    height: 100%;
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+}
+
+.content div {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+}
+
+@media only screen and (max-width: 992px) {
+    .background h1 {
+        font-size: 80px;
+    }
+    .background h2, .background .btn {
+        font-size: 20px;
+    }
+}
+
+.container {
+    height: 50px;
+}
+.link-secondary {
+    display: inline-block;
+    padding: 20px;
+}
+
+.text-box {
+    text-shadow: 0 .05rem .1rem rgba(19, 46, 76, 0.5);
+    box-shadow: inset 0 0 5rem rgba(19, 46, 76, .5);
+    padding: 20px;
+    margin: 50px;
+    border-radius: 10px;
+}
+
+.pasted {
+    position: relative;
+    width: 100%;
+}
+
+.logo_overlay {
+    position: absolute;
+    width: 100px;
+    border-radius: 50%;
+    top: 220px;
+    left: 5px;
+}
+
+.portrait {
+    right: 0;
+}

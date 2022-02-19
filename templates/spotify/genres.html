@@ -1,9 +1,6 @@
-{% extends 'spotify/main.html' %}
+{% extends 'index.html' %}
 {% block head %} {{ super() }}
-<link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/spotify/genres.css') }}"
-/>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/spotify/genres.css') }}" />
 {% endblock %}
 {% block body %} {{ super() }}
 

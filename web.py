@@ -1,10 +1,14 @@
-from datetime import datetime, timedelta
 import os
 import json
 import asyncio
 import aiohttp
 import asyncpg
+import logging
 import secrets
+
+from datetime import datetime, timedelta
+from functools import wraps
+from logging.handlers import RotatingFileHandler
 
 from quart import (
     Quart,
@@ -19,8 +23,28 @@ from quart import (
 
 
 import config
-
 from utilities import http, spotify, constants
+
+
+# Set up our website logger
+MAX_LOGGING_BYTES = 32 * 1024 * 1024  # 32 MiB
+FOLDER = "./logs"
+if not os.path.exists(FOLDER):
+    os.mkdir(FOLDER)
+log = logging.getLogger("sketyl")
+log.setLevel(logging.INFO)
+handler = RotatingFileHandler(
+    filename=f"{FOLDER}/web.log",
+    encoding="utf-8",
+    mode="w",
+    maxBytes=MAX_LOGGING_BYTES,
+    backupCount=5,
+)
+log.addHandler(handler)
+fmt = logging.Formatter(
+    "{asctime}: [{levelname}] {name} || {message}", "%Y-%m-%d %H:%M:%S", style="{"
+)
+handler.setFormatter(fmt)
 
 
 class Sketyl(Quart):
@@ -39,10 +63,9 @@ class Sketyl(Quart):
             asyncpg.create_pool(config.POSTGRES.uri, **kwargs)
         )
         self.loop.run_until_complete(self.initialize())
-
-        self.stats = {}
-
         self.secret_key = secrets.token_urlsafe(64)
+
+        self.current_user = None
 
     def run(self):
         super().run(host="0.0.0.0", port=3000, loop=self.loop)
@@ -66,9 +89,58 @@ class Sketyl(Quart):
 app = Sketyl(__name__)
 
 
+def login_required():
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            if app.current_user:
+                return await func(*args, **kwargs)
+
+            user_id = request.cookies.get("user_id")
+            user = None
+
+            if user_id:
+                user = await spotify.User.from_id(user_id, app)
+
+            if not user or not user_id:  # Haven't connected their account.
+                session["referrer"] = url_for(func.__name__)
+                return redirect(url_for("spotify_connect"))
+
+            app.current_user = user
+
+            return await func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+async def _tasked_requests():
+    for span in spotify.CONSTANTS.TIME_RANGE_MAP.keys():
+        await app.current_user.get_top_tracks(time_range=span)
+        await app.current_user.get_top_artists(time_range=span)
+    await app.current_user.get_recent_tracks()
+    await app.current_user.get_liked_tracks()
+
+
+@app.before_first_request
+async def speed_loader():
+    user_id = request.cookies.get("user_id")
+    if user_id:
+        user = await spotify.User.from_id(user_id, app)
+    if user:
+        app.current_user = user
+        app.loop.create_task(_tasked_requests())
+
+
 @app.route("/home")
-async def index():
+async def home():
     return await render_template("home.html")
+
+
+@app.route("/index")
+async def index():
+    return await render_template("index.html")
 
 
 @app.route("/")
@@ -86,7 +158,7 @@ async def _spotify():
         "/spotify/charts.html",
         decades=decades,
         labels=json.dumps(list(decades.keys())),
-        data=json.dumps([len(decades[decade]["tracks"]) for decade in decades]),
+        data=json.dumps([len(decades[decade]) for decade in decades]),
         colors=json.dumps(constants.colors[: len(decades.keys())]),
     )
 
@@ -112,6 +184,8 @@ async def spotify_connect():
         expires=datetime.utcnow() + timedelta(days=365),
     )
 
+    app.current_user = sp_user
+
     return response
 
 
@@ -128,76 +202,65 @@ async def spotify_disconnect():
     await app.cxn.execute(query, user_id)
     response = await make_response(redirect(url_for("_spotify")))
     response.set_cookie("user_id", "", expires=0)
+    app.current_user = None
     return response
 
 
-@app.route("/spotify/recent")
+@app.route("/spotify/recent/")
+@login_required()
 async def spotify_recent():
-    user_id = request.cookies.get("user_id")
 
-    if not user_id:  # User is not logged in, redirect them back
-        session["referrer"] = url_for(
-            "spotify_recent"
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
+    tracks = await app.current_user.get_recent_tracks()
 
-    user = await spotify.User.from_id(user_id, app)
-    if not user:  # Haven't connected their account.
-        session["referrer"] = url_for(
-            "spotify_recent"
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    data = await user.get_recent_tracks()
-    track_ids = [track["id"] for track in data]
-    features = await user.get_audio_features(track_ids)
-    tracks = [
-        spotify.Track(track, features=af, index=rank)
-        for (rank, (track, af)) in enumerate(zip(data, features), start=1)
-    ]
-    caption = "Recent Tracks"
-    html = await render_template(
+    return await render_template(
         "spotify/tracks.html",
         type="recent",
         tracks=tracks,
-        track_ids=json.dumps(track_ids),
-        caption=caption,
+        track_ids=json.dumps([track.id for track in tracks]),
+        caption="Recent Tracks",
     )
-    # await emailer.send_email("hecate946@gmail.com", html=html)
-    return html
 
 
 @app.route("/spotify/liked")
+@login_required()
 async def spotify_liked():
-    user_id = request.cookies.get("user_id")
+    tracks = await app.current_user.get_liked_tracks()
 
-    if not user_id:  # User is not logged in, redirect them back
-        session["referrer"] = url_for(
-            "spotify_liked"
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    user = await spotify.User.from_id(user_id, app)
-    if not user:  # Haven't connected their account.
-        session["referrer"] = url_for(
-            "spotify_liked"
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    data = await user.get_liked_tracks()
-    track_ids = [t["id"] for t in data]
-    features = await user.get_audio_features(track_ids)
-    tracks = [
-        spotify.Track(track, features=af, index=rank)
-        for (rank, (track, af)) in enumerate(zip(data, features), start=1)
-    ]
-    caption = "Liked Tracks"
     return await render_template(
         "spotify/tracks.html",
         type="liked",
         tracks=tracks,
-        caption=caption,
-        track_ids=json.dumps(track_ids),
+        track_ids=json.dumps([track.id for track in tracks]),
+        caption="Liked Tracks",
+    )
+
+
+@app.route("/spotify/top_tracks/")
+@login_required()
+async def spotify_top_tracks():
+    span = request.args.get("time_range", "short_term")
+    tracks = await app.current_user.get_top_tracks(time_range=span)
+
+    return await render_template(
+        "spotify/tracks.html",
+        type="recent",
+        tracks=tracks,
+        track_ids=json.dumps([track.id for track in tracks]),
+        caption="Top Tracks",
+    )
+
+
+@app.route("/spotify/top_artists/")
+@login_required()
+async def spotify_top_artists():
+    span = request.args.get("time_range", "short_term")
+    data = await app.current_user.get_top_artists(time_range=span)
+    artists = [
+        spotify.Artist(artist, index=rank) for rank, artist in enumerate(data, start=1)
+    ]
+    caption = "Top Artists"
+    return await render_template(
+        "spotify/artists.html", type="top", artists=artists, caption=caption
     )
 
 
@@ -339,64 +402,6 @@ async def playlists(playlist_id):
     return await render_template(
         "spotify/tracks.html", tracks=tracks, caption=data["name"]
     )
-
-
-@app.route("/spotify/top/<spotify_type>")
-async def spotify_top(spotify_type):
-    user_id = request.cookies.get("user_id")
-    time_range = request.args.get("time_range", "short_term")
-
-    if not user_id:  # User is not logged in, redirect them back
-        session["referrer"] = url_for(
-            "spotify_top", spotify_type=spotify_type, time_range=time_range
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    user = await spotify.User.from_id(user_id, app)
-    if not user:
-        session["referrer"] = url_for(
-            "spotify_top", spotify_type=spotify_type, time_range=time_range
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    if spotify_type == "artists":
-        data = await user.get_top_artists(time_range=time_range)
-        artists = [
-            spotify.Artist(artist, index=rank)
-            for rank, artist in enumerate(data, start=1)
-        ]
-        caption = "Top Artists"
-        return await render_template(
-            "spotify/artists.html", type="top", artists=artists, caption=caption
-        )
-        return await render_template(
-            "spotify/tables.html", artist=True, data=artists, caption=caption
-        )
-
-    if spotify_type == "tracks":
-        data = await user.get_top_tracks(time_range=time_range)
-        track_ids = [t["id"] for t in data]
-        features = await user.get_audio_features(track_ids)
-        tracks = [
-            spotify.Track(track, features=af, index=rank)
-            for (rank, (track, af)) in enumerate(zip(data, features), start=1)
-        ]
-        caption = "Top Tracks"
-        return await render_template(
-            "spotify/tracks.html",
-            type="top",
-            tracks=tracks,
-            caption=caption,
-            track_ids=json.dumps(track_ids),
-        )
-
-    if spotify_type == "genres":
-        data = await user.get_top_genres(time_range=time_range)
-        genres = spotify.formatting.top_genres(data)
-        caption = spotify.formatting.get_caption("genres", time_range)
-        return await render_template(
-            "spotify/tables.html", genres=True, data=genres, caption=caption
-        )
 
 
 @app.route("/g")

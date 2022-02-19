@@ -1,4 +1,4 @@
-{% extends 'spotify/main.html' %}
+{% extends 'index.html' %}
 {% block head %}
 {{ super() }}
 
@@ -60,7 +60,7 @@
                             </td>
                             <td>
                                 {% for artist in track.artists %}
-                                <a class="link-light" href="#" FIX THIS>{{artist["name"]}}</a>
+                                <a class="link-light" href="{{artist.url}}" FIX THIS>{{artist["name"]}}</a>
                                 {% endfor %}
                             </td>
                             <td class="unseen">{{track.duration}}</td>
