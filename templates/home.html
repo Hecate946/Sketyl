@@ -12,46 +12,56 @@
             <div>
                 <h1>Sketyl</h1>
                 <h2>Spotify Statistics, Style, Satire, and Shit</h2>
-                <button type="button" class="btn btn-lg">Connect to Spotify</button>
+                <a href="{{url_for('spotify_connect')}}" class="btn btn-lg">Connect to Spotify</a>
             </div>
         </div>
     </div>
     <div class="text-box">
-        <h1>
-            Yes, I know this website looks terrible. It'll improve. Hopefully...
-            Oh and yes all the code is on github. Just google "sketyl github" or something like that.
+        <h1>About Sketyl</h1>
+        <h2>In case you didn't notice, Sketyl is a website. And yes, I know it looks terrible. It'll improve.
+            Hopefully... Sketyl is a 100% open source project, and was designed with utmost speed and navigational
+            simplicity as priorities.
+            The complete source code can be found at <a href="https://github.com/Hecate946/Sketyl"
+                target="_blank">https://github.com/Hecate946/Sketyl</a>
+        </h2>
+        <h1>Function</h1>
+        <h2>
+            Sketyl shows you your favorite tracks and artists, what you've listened to recently, and provides audio
+            previews for each song.
+        </h2>
+        <h1>Author Notes</h1>
+        <h2>
             Professionalism is my forte and it shows. Doesn't it? Sketyl is a cool name no? It's a random 6 letter word
-            I came
-            up with that happened to be for sale on namecheap for 4 bucks. Also cool because it sounds like skettle,
-            which
-            apparently is jamaican slang for prostitutes.
-            Fuck I forgot to mention that a bunch of the tabs like recent tracks and playlists will probably crap out
-            for you.
+            I came up with that happened to be for sale on namecheap for 4 bucks. Also cool because it sounds like
+            skettle,
+            which apparently is jamaican slang for prostitutes.
+            Fuck I forgot to mention that the "Recent Tracks" and the "Liked Tracks" tabs will probably crap out for
+            you.
             Spotify hasn't approved Sketyl for that yet. Not my fault, so yeah my code isn't shitty just because you see
-            internal server errors. Well the code is sorta shitty, but that's not why it craps out.
-            Wuack is this dumbfuckery encouragement enough? When are you gonna make a homepage? :thinking:
-        </h1>
-        <h1>I can't believe people actually visit this thing, but I guess there are 7 billion people googling round the
-            clock.
-            So yeah... just click that spotify link up there ^^, or expand the hamburger if you're on mobile and connect
-            your
-            account. Why not? You already wasted 10 seconds reading this shit. Do you like the logo? Yes, the one that
-            looks
-            more like a deformed sperm than a 16th note. I drew it on the apple notes app. I think I have a bright
-            future as a
-            digital artist don't you agree? Or perhaps even a painter.
-        </h1>
+            internal server errors. Well the code is sorta shitty, but that's not why it craps out. Also don't come and
+            fuck me over
+            for using someone else's photograph as a background image. Yes I mean that one up there ^. Beautiful isn't
+            it? The
+            photographer's name is Jan Erik Waider. I love his stuff.
+            if you want to check his work out, click <a
+                href="https://www.northlandscapes.com/portfolio/iceland-dark-and-monochrome" target="_blank">here.</a>
+            Or just google
+            him. I honestly couldn't care less what you do.
+            Speaking of art, do you like the logo? Yes, the one that looks more like a deformed sperm than a 16th note.
+            I drew it on the apple notes app (on my phone). I think I have a bright future as a
+            digital artist wouldn't you agree? Or maybe even a painter?
+        </h2>
         <div class="pasted">
             <img class="portrait" src="{{url_for('static', filename='assets/portrait.jpeg')}}">
-            <img class="logo_overlay" src="{{url_for('static', filename='assets/logo.png')}}" </div>
         </div>
         <h1>Ahh yes. Madame Vigeé Le Brun would be proud.</h1>
     </div>
 
     <footer class="border-top footer">
         <div class="container text-center">
-            <a class="link-secondary" href="#">Privacy Policy</a>
-            <a class="link-secondary" href="#">FAQs</a>
+            <a class="link-secondary" href="https://github.com/Hecate946/Sketyl" target="_blank">Source</a>
+            <a class="link-secondary" href="{{url_for('privacy_policy')}}">Privacy Policy</a>
+            <a class="link-secondary" href="{{url_for('faq_page')}}">FAQs</a>
         </div>
     </footer>
     {% endblock %}

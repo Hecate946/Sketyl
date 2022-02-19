@@ -435,6 +435,16 @@ class User:  # Current user's spotify instance
         return top_artists
 
     @cache.cache(strategy=cache.Strategy.timed)
+    async def get_decades(self, time_range="long_term"):
+        data = await self.get_top_tracks(time_range=time_range)
+        decade = lambda date: (int(date.split("-")[0]) // 10) * 10
+        decades = defaultdict(list)
+        for track in data:
+            decades[decade(track.raw["album"]["release_date"])].append(track)
+
+        return {str(decade) + "s": tracks for decade, tracks in sorted(decades.items())}
+
+    @cache.cache(strategy=cache.Strategy.timed)
     async def get_playlists(self, playlists: int = 100):
         """Get a user's owned and followed playlists"""
         _playlists = []
@@ -655,15 +665,6 @@ class User:  # Current user's spotify instance
         liked_tracks = await self.get_all_liked_tracks()
         track_uris = [item["track"]["uri"] for item in liked_tracks]
         return await self.add_to_playlist(playlist["id"], track_uris)
-
-    async def get_decades(self, time_range="long_term"):
-        data = await self.get_top_tracks(time_range=time_range)
-        decade = lambda date: (int(date.split("-")[0]) // 10) * 10
-        decades = defaultdict(list)
-        for track in data:
-            decades[decade(track.raw["album"]["release_date"])].append(track)
-
-        return {str(decade) + "s": tracks for decade, tracks in sorted(decades.items())}
 
 
 class Formatting:

@@ -39,13 +39,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for track in tracks["tracks"] %}
+                        {% for track in tracks %}
                         <tr class="rows" data-track="{{track.json}}">
-                            <th scope="row">{{track.index}}</th>
+                            <th scope="row">{{loop.index}}</th>
                             <td>
                                 <div class="container">
                                     <div class="overlay">
-                                        <img class="cover" src="{{track.image}}" />
+                                        <img class="cover" src="{{track.cover}}" />
                                         <span class="icon play-pause">
                                             <i class="fa fa-play"></i>
                                             <audio class="audio" src="{{track.preview}}"></audio>
@@ -60,7 +60,7 @@
                             </td>
                             <td>
                                 {% for artist in track.artists %}
-                                <a class="link-light" href="{{artist.url}}" FIX THIS>{{artist["name"]}}</a>
+                                <a class="link-light" href="{{artist.url}}">{{artist.name}}</a>
                                 {% endfor %}
                             </td>
                             <td class="unseen">{{track.duration}}</td>

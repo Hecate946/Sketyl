@@ -116,6 +116,7 @@ def login_required():
 
 
 async def _tasked_requests():
+    await app.current_user.get_decades()
     for span in spotify.CONSTANTS.TIME_RANGE_MAP.keys():
         await app.current_user.get_top_tracks(time_range=span)
         await app.current_user.get_top_artists(time_range=span)
@@ -128,30 +129,16 @@ async def speed_loader():
     user_id = request.cookies.get("user_id")
     if user_id:
         user = await spotify.User.from_id(user_id, app)
-    if user:
-        app.current_user = user
-        app.loop.create_task(_tasked_requests())
-
-
-@app.route("/home")
-async def home():
-    return await render_template("home.html")
-
-
-@app.route("/index")
-async def index():
-    return await render_template("index.html")
+        if user:
+            app.current_user = user
+            app.loop.create_task(_tasked_requests())
 
 
 @app.route("/")
-async def _spotify():
-    user_id = request.cookies.get("user_id")
-    if not user_id:  # Have them log in
-        return await render_template("spotify/login.html")
-
-    user = await spotify.User.from_id(user_id, app)
+async def home():
+    user = app.current_user
     if not user:
-        return await render_template("spotify/login.html")
+        return await render_template("home.html")
     decades = await user.get_decades()
 
     return await render_template(
@@ -161,6 +148,21 @@ async def _spotify():
         data=json.dumps([len(decades[decade]) for decade in decades]),
         colors=json.dumps(constants.colors[: len(decades.keys())]),
     )
+
+
+@app.route("/index")
+async def index():
+    return await render_template("index.html")
+
+
+@app.route("/privacy_policy")
+async def privacy_policy():
+    return ""
+
+
+@app.route("/faqs")
+async def faq_page():
+    return "Did you really think I'd write a FAQ page? I sure hope you didn't."
 
 
 @app.route("/spotify/connect")
@@ -175,7 +177,7 @@ async def spotify_connect():
         return redirect(spotify.Oauth(app).get_auth_url())
 
     sp_user = await spotify.User.from_token(token_info, app)  # Save user
-    redirect_location = session.pop("referrer", url_for("_spotify"))
+    redirect_location = session.pop("referrer", url_for("home"))
     response = await make_response(redirect(redirect_location))
 
     response.set_cookie(
@@ -185,6 +187,7 @@ async def spotify_connect():
     )
 
     app.current_user = sp_user
+    app.loop.create_task(_tasked_requests())
 
     return response
 
@@ -200,7 +203,7 @@ async def spotify_disconnect():
             WHERE user_id = $1
             """
     await app.cxn.execute(query, user_id)
-    response = await make_response(redirect(url_for("_spotify")))
+    response = await make_response(redirect(url_for("home")))
     response.set_cookie("user_id", "", expires=0)
     app.current_user = None
     return response

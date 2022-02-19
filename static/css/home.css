@@ -4,6 +4,10 @@
 
 h1 {
     color: #40434a;
+    font-size: 30px;
+}
+h2 {
+    color: #40434a;
     font-size: 25px;
 }
 .background {
@@ -79,6 +83,9 @@ h1 {
         margin-bottom: 5px;
     }
     h1 {
+        font-size: 20px;
+    }
+    h2 {
         font-size: 15px;
     }
 
@@ -104,14 +111,6 @@ h1 {
 .pasted {
     position: relative;
     width: 100%;
-}
-
-.logo_overlay {
-    position: relative;
-    width: 50px;
-    border-radius: 50%;
-    top: -50px;
-    left: -190px;
 }
 
 .portrait {
