@@ -42,7 +42,7 @@ h1 {
 .background h2 {
     color: #FFFFFF;
     font-size: 25px;
-    padding: 10px 0;
+    padding: 10px 0 20px;
     font-weight: lighter;
 }
 
@@ -67,7 +67,7 @@ h1 {
 
 @media only screen and (max-width: 992px) {
     .background h1 {
-        font-size: 80px;
+        font-size: 50px;
     }
     .background h2, .background .btn {
         font-size: 20px;
@@ -97,12 +97,12 @@ h1 {
 
 .logo_overlay {
     position: absolute;
-    width: 100px;
+    width: 50px;
     border-radius: 50%;
-    top: 220px;
+    top: 50px;
     left: 5px;
 }
 
 .portrait {
-    right: 0;
+    width: 200px;
 }
