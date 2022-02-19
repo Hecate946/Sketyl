@@ -4,7 +4,7 @@
 
 h1 {
     color: #40434a;
-    font-size: 30px;
+    font-size: 25px;
 }
 .background {
     position: relative;
@@ -68,10 +68,20 @@ h1 {
 @media only screen and (max-width: 992px) {
     .background h1 {
         font-size: 50px;
+        margin-top: 5px;
     }
-    .background h2, .background .btn {
+    .background h2 {
         font-size: 20px;
+        padding: 5px 0 15px;
     }
+    .background .btn {
+        font-size: 20px;
+        margin-bottom: 5px;
+    }
+    h1 {
+        font-size: 15px;
+    }
+
 }
 
 .container {
@@ -88,6 +98,7 @@ h1 {
     padding: 20px;
     margin: 50px;
     border-radius: 10px;
+    text-align: center;
 }
 
 .pasted {
@@ -96,13 +107,14 @@ h1 {
 }
 
 .logo_overlay {
-    position: absolute;
+    position: relative;
     width: 50px;
     border-radius: 50%;
-    top: 50px;
-    left: 5px;
+    top: -50px;
+    left: -190px;
 }
 
 .portrait {
     width: 200px;
+    padding: 10px;
 }
