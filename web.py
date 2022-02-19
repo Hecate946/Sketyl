@@ -65,7 +65,7 @@ class Sketyl(Quart):
         self.loop.run_until_complete(self.initialize())
         self.secret_key = secrets.token_urlsafe(64)
 
-        self.current_user = None
+        self.current_users = {}
 
     def run(self):
         super().run(host="0.0.0.0", port=3000, loop=self.loop)
@@ -89,24 +89,33 @@ class Sketyl(Quart):
 app = Sketyl(__name__)
 
 
+async def get_user():
+    user_id = request.cookies.get("user_id")
+    if user_id:
+        user = app.current_users.get(user_id)
+        if user:
+            return user
+        return await spotify.User.from_id(user_id, app)
+
+
 def login_required():
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            if app.current_user:
-                return await func(*args, **kwargs)
-
             user_id = request.cookies.get("user_id")
             user = None
-
             if user_id:
+                user = app.current_users.get(user_id)
+                if user:
+                    return await func(*args, **kwargs)
+
                 user = await spotify.User.from_id(user_id, app)
 
-            if not user or not user_id:  # Haven't connected their account.
+            if not user:  # Haven't connected their account.
                 session["referrer"] = url_for(func.__name__)
                 return redirect(url_for("spotify_connect"))
 
-            app.current_user = user
+            app.current_users[user.id] = user
 
             return await func(*args, **kwargs)
 
@@ -115,28 +124,25 @@ def login_required():
     return decorator
 
 
-async def _tasked_requests():
-    await app.current_user.get_decades()
+async def _tasked_requests(user):
+    await user.get_decades()
     for span in spotify.CONSTANTS.TIME_RANGE_MAP.keys():
-        await app.current_user.get_top_tracks(time_range=span)
-        await app.current_user.get_top_artists(time_range=span)
-    await app.current_user.get_recent_tracks()
-    await app.current_user.get_liked_tracks()
+        await user.get_top_tracks(time_range=span)
+        await user.get_top_artists(time_range=span)
+    await user.get_recent_tracks()
+    await user.get_liked_tracks()
 
 
 @app.before_first_request
 async def speed_loader():
-    user_id = request.cookies.get("user_id")
-    if user_id:
-        user = await spotify.User.from_id(user_id, app)
-        if user:
-            app.current_user = user
-            app.loop.create_task(_tasked_requests())
+    user = await get_user()
+    if user:
+        app.loop.create_task(_tasked_requests(user))
 
 
 @app.route("/")
 async def home():
-    user = app.current_user
+    user = await get_user()
     if not user:
         return await render_template("home.html")
     decades = await user.get_decades()
@@ -186,8 +192,8 @@ async def spotify_connect():
         expires=datetime.utcnow() + timedelta(days=365),
     )
 
-    app.current_user = sp_user
-    app.loop.create_task(_tasked_requests())
+    app.current_users[sp_user.id] = sp_user
+    app.loop.create_task(_tasked_requests(sp_user))
 
     return response
 
@@ -205,15 +211,15 @@ async def spotify_disconnect():
     await app.cxn.execute(query, user_id)
     response = await make_response(redirect(url_for("home")))
     response.set_cookie("user_id", "", expires=0)
-    app.current_user = None
+    app.current_users.pop(user_id, None)
     return response
 
 
 @app.route("/spotify/recent/")
 @login_required()
 async def spotify_recent():
-
-    tracks = await app.current_user.get_recent_tracks()
+    user = await get_user()
+    tracks = await user.get_recent_tracks()
 
     return await render_template(
         "spotify/tracks.html",
@@ -227,7 +233,8 @@ async def spotify_recent():
 @app.route("/spotify/liked")
 @login_required()
 async def spotify_liked():
-    tracks = await app.current_user.get_liked_tracks()
+    user = await get_user()
+    tracks = await user.get_liked_tracks()
 
     return await render_template(
         "spotify/tracks.html",
@@ -242,7 +249,8 @@ async def spotify_liked():
 @login_required()
 async def spotify_top_tracks():
     span = request.args.get("time_range", "short_term")
-    tracks = await app.current_user.get_top_tracks(time_range=span)
+    user = await get_user()
+    tracks = await user.get_top_tracks(time_range=span)
 
     return await render_template(
         "spotify/tracks.html",
@@ -257,7 +265,8 @@ async def spotify_top_tracks():
 @login_required()
 async def spotify_top_artists():
     span = request.args.get("time_range", "short_term")
-    data = await app.current_user.get_top_artists(time_range=span)
+    user = await get_user()
+    data = await user.get_top_artists(time_range=span)
     artists = [
         spotify.Artist(artist, index=rank) for rank, artist in enumerate(data, start=1)
     ]
