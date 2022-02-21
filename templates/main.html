@@ -1,0 +1,93 @@
+{% extends 'track.html' %} {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tracks.css') }}" />
+{{super()}} {% endblock %}
+
+{% block body %}
+{{super()}}
+
+<div class="genres">
+    Your Top Genres
+    {% for genre in genres %}
+    <div class="genre">
+        {{loop.index}}. {{genre|title}}
+    </div>
+    {% endfor %}
+</div>
+
+
+
+
+<div class="decades">
+    <div class="heading text-center">
+        <h1>The music you listen to most comes from across {{decades.keys()|length}} decades. Explore your favorite
+            tracks
+            from each decade by expanding the dropdowns below.</h1>
+    </div>
+    <div class="chart-container">
+        <canvas id="chartcanvas" data-labels="{{labels}}" data-colors="{{colors}}" data-decades="{{data}}"></canvas>
+    </div>
+
+
+    <div class="accordion" id="decades">
+        {% for decade, tracks in decades.items() %}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading{{decade}}">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse{{decade}}" aria-expanded="false" aria-controls="collapse{{decade}}">
+                    {{decade}}
+                </button>
+            </h2>
+            <div id="collapse{{decade}}" class="accordion-collapse collapse" aria-labelledby="heading{{decade}}"
+                data-bs-parent="#decades">
+                <div class="accordion-body">
+                    <table id="decade-table" class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th class="rank" scope="col">#</th>
+                                <th scope="col">Cover</th>
+                                <th scope="col">Track</th>
+                                <th scope="col">Artist</th>
+                                <th class="unseen" scope="col">Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for track in tracks %}
+                            <tr class="rows" data-track="{{track.json}}">
+                                <th class="index" scope="row">
+                                    <div class="overlay">
+                                        <h4>{{loop.index}}</h4>
+                                        <span class="icon play-pause">
+                                            <i class="fa fa-play small-play-button"></i>
+                                            <audio class="audio" src="{{track.preview}}"></audio>
+                                        </span>
+                                    </div>
+                                </th>
+                                <td>
+                                    <div class="small-cover">
+                                        <img src="{{track.cover}}" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="{{track.url}}" class="link-light track">
+                                        {{track.name}}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% for artist in track.artists %}
+                                    <a class="link-light" href="{{artist.url}}">{{artist.name}}</a>
+                                    {% endfor %}
+                                </td>
+                                <td class="unseen">{{track.duration}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

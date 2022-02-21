@@ -30,3 +30,33 @@ $(function () {
         $(this).text("Playlist Created") // success message
     });
 });
+
+$(function () {
+    // this will get the full URL at the address bar
+    // passes on every "a" tag
+    $(".dropdown-item").each(function () {
+        // checks if its the same on the address bar
+        if (
+            window.location.href == this.href ||
+            window.location.href == this.href + "?time_range=short_term"
+        ) {
+            $(this).remove();
+        }
+    });
+});
+
+$(function () {
+    // this will get the full URL at the address bar
+
+    $(".time-select-buttons")
+        .children()
+        .each(function () {
+            // checks if its the same on the address bar
+            if (
+                window.location.href == this.href ||
+                window.location.href + "?time_range=short_term" == this.href
+            ) {
+                $(this).addClass("link-light").removeClass("link-secondary");
+            }
+        });
+});

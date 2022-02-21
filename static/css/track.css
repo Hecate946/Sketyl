@@ -1,0 +1,148 @@
+* {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+}
+
+hr {
+    color: #FFFFFF;
+}
+
+.cover {
+    height: 200px;
+    width: 200px;
+}
+
+.small-cover {
+    width: 50px;
+    height: 50px;
+}
+
+.small-cover img {
+    width: 100%;
+    height: 100%;
+}
+.player {
+    display: flex;
+    align-items: center;
+    align-self: center;
+    width: 200px;
+}
+#main-play-pause-button {
+    color: #FFFFFF;
+    font-size: 40px;
+    padding-right: 10px;
+}
+
+
+.hp_slide, .hp_range {
+    border-radius: 20px;
+    height:15px;
+}
+.hp_slide{
+    width: 400px;
+    background:#B3C2C8;
+}
+.hp_range{
+    width:0;
+    background:#000000;
+}
+
+.featured-song {
+    align-self: center;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    background-color: #0a2025;
+    box-shadow: 0 0 5rem #0a2d36;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 20px;
+}
+
+.featured-song > div {
+    padding: 10px;
+}
+
+.featured-song h3 {
+    color: #FFFFFF;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.featured-song h1 {
+    color: #FFFFFF;
+    font-size: 35px;
+    font-weight: bold;
+}
+
+.featured-song a {
+    color: #69cdff;
+}
+.spotify-logo {
+    align-self: flex-start;
+}
+.spotify-logo img {
+    height: 50px;
+}
+
+.stats {
+    color: #FFFFFF;
+}
+
+.stats h1 {
+    color: #FFFFFF;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.text-stats {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.text-stats div {
+    padding: 25px;
+}
+
+.feature-type {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
+}
+
+.bar {
+    height: 15px;
+    background-color: #B3C2C8;
+    border-radius: 20px;
+    width: 200px;
+    align-self: center;
+}
+
+.popover-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.fa-info-circle {
+    font-size: 30px;
+    float: right;
+    padding: 10px;
+}
+
+
+@media only screen and (max-width: 992px) {
+    .featured-song h1 {
+        font-size: 25px;
+    }
+
+    .featured-song h3 {
+        font-size: 15px;
+    }
+
+    .header {
+        justify-content: center;
+    }
+}

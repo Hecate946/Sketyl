@@ -132,7 +132,8 @@ def login_required():
 
 
 async def _tasked_requests(user):
-    # await user.get_decades()
+    await user.get_decades()
+    await user.get_top_genres()
     for span in spotify.CONSTANTS.TIME_RANGE_MAP.keys():
         await user.get_top_tracks(time_range=span)
         await user.get_top_artists(time_range=span)
@@ -149,19 +150,26 @@ async def speed_loader():
 
 @app.route("/")
 async def home():
-    # user = await get_user()
-    # if not user:
-    track = await app.client.get_full_track("3eaJHhtNsKOumLQYU7bnas")
-    return await render_template("home.html", track=track)
-    # decades = await user.get_decades()
+    user = await get_user()
+    if not user:
+        track = await app.client.get_full_track("3eaJHhtNsKOumLQYU7bnas")
+        return await render_template("home.html", title="Featured Song", track=track)
 
-    # return await render_template(
-    #     "/spotify/charts.html",
-    #     decades=decades,
-    #     labels=json.dumps(list(decades.keys())),
-    #     data=json.dumps([len(decades[decade]) for decade in decades]),
-    #     colors=json.dumps(constants.colors[: len(decades.keys())]),
-    # )
+    decades = await user.get_decades()
+    top_tracks = await user.get_top_tracks(time_range="long_term")
+    track = await app.client.get_full_track(top_tracks[0].id)
+    genres = await user.get_top_genres()
+
+    return await render_template(
+        "main.html",
+        title="Your Top Song",
+        track=track,
+        genres=list(genres.keys())[:10],
+        decades=decades,
+        labels=json.dumps(list(decades.keys())),
+        data=json.dumps([len(decades[decade]) for decade in decades]),
+        colors=json.dumps(constants.colors[: len(decades.keys())]),
+    )
 
 
 @app.route("/index")
@@ -495,12 +503,14 @@ async def p():
     return await render_template("spotify/player.html", token=token)
 
 
-@app.route("/album")
+@app.route("/a")
 async def al():
     user_id = request.cookies.get("user_id")
     user = await spotify.User.from_id(user_id, app)
-    data = await user.get_albums(["7dVA06E7AP7P7VzPyNxQVO"])
-    print(user.get_albums.cache)
+    genres = await user.get_valid_genres()
+    data = await user.get_recommendations(
+        limit=5, seed_genres=",".join(list(genres.keys())[:5])
+    )
     return str(data)
 
 

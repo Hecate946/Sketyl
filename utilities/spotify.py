@@ -473,8 +473,11 @@ class User:  # Current user's spotify instance
         return await self.get(CONSTANTS.API_URL + "me")
 
     async def get_recommendations(self, limit=100, **kwargs):
-        params = {"limit": 100}.update(**kwargs)
-        return await self.get(CONSTANTS.API_URL + "recommendations")
+        params = {"limit": limit}
+        params.update(**kwargs)
+        return await self.get(
+            CONSTANTS.API_URL + "recommendations?" + urlencode(params)
+        )
 
     async def _format_tracks(self, tracks):
         tracks_ids = [track["id"] for track in tracks]
@@ -625,18 +628,23 @@ class User:  # Current user's spotify instance
     async def get_artist_top_tracks(self, artist_id):
         return await self.get(CONSTANTS.API_URL + f"artists/{artist_id}/top_tracks")
 
-    async def get_top_genres(self, limit=50, time_range="long_term"):
+    async def get_top_genres(self, limit=99, time_range="long_term"):
         data = await self.get_top_artists(limit, time_range)
         genres = []
-        for artist in data["items"]:
+        for artist in data:
             genres.extend(artist["genres"])
 
         return Counter(genres)
 
     async def get_genre_seeds(self):
-        return await self.get(
-            CONSTANTS.API_URL + "recommendations/available-genre-seeds"
-        )
+        r = await self.get(CONSTANTS.API_URL + "recommendations/available-genre-seeds")
+        return r["genres"]
+
+    async def get_valid_genres(self, limit=99, time_range="long_term"):
+        genre_list_1 = await self.get_top_genres(limit, time_range)
+        genre_list_2 = await self.get_genre_seeds()
+        genres = [g for g in genre_list_1 if g in genre_list_2]
+        return Counter(genres)
 
     async def get_album(self, album_id):
         return await self.get(CONSTANTS.API_URL + f"albums/{album_id}")

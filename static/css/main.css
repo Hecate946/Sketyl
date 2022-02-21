@@ -1,0 +1,89 @@
+* {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+}
+
+.genres {
+    align-self: center;
+    display: flex;
+    justify-content: start;
+    flex-direction: column;
+    text-align: left;
+    background-color: #ff97ee;
+    box-shadow: 0 0 5rem #ff97ee;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 40px 20px;
+    color: #250c25;
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.genre {
+    font-size: 30px;
+    color: #250c25;
+    background-color: #ffb8f3;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 20px;
+}
+
+.decades {
+    background-color: #515b88;
+    box-shadow: 0 0 5rem #121b42;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px;
+    color: #FFFFFF;
+    font-size: 25px;
+    text-align: center;
+}
+
+.chart-container {
+    border-radius: 10px;
+    margin: 10px;
+    padding: 60px;
+}
+
+.accordion-item {
+    border: none;
+    background-color: #8993be;
+    border-radius: 10px;
+}
+.accordion-button {
+    background-color: #8993be;
+    border-radius: 10px;
+    margin: 10px 0;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #8993be;
+    color: #250c25;
+}
+
+
+#decade-table {
+    background-color: #2b3047;
+    margin: 0;
+}
+
+#decade-table td {
+    font-size: 15px;
+}
+
+#decade-table th {
+    font-size: 20px;
+}
+
+@media only screen and (max-width: 992px) {
+    #decade-table td {
+        font-size: 10px;
+    }
+    
+    #decade-table th {
+        font-size: 15px;
+    }
+
+    .heading h1 {
+        font-size: 20px;
+    }
+}

@@ -63,8 +63,21 @@
   </nav>
 
   <!-- Custom JS for this template -->
-  <script rel='text/javascript' src="{{url_for('static', filename='js/index.js')}}"></script>
   {% block body %}{% endblock %}
+  <script rel='text/javascript' src="{{url_for('static', filename='js/index.js')}}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.0/Chart.min.js"></script>
+  <script src="{{url_for('static', filename='js/chart.js')}}"></script>
+  <script src="{{url_for('static', filename='js/utils.js')}}"></script>
+  <script src="{{url_for('static', filename='js/tracks.js')}}"></script>
+  <script src="{{url_for('static', filename='js/player.js')}}"></script>
+
+  <footer class="border-top footer">
+    <div class="text-center">
+      <a class="link-secondary" href="https://github.com/Hecate946/Sketyl" target="_blank">Source</a>
+      <a class="link-secondary" href="{{url_for('privacy_policy')}}">Privacy Policy</a>
+      <a class="link-secondary" href="{{url_for('faq_page')}}">FAQs</a>
+    </div>
+  </footer>
 </body>
 
 </html>
