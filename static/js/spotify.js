@@ -37,6 +37,7 @@ $(function () {
     });
 });
 
+
 $("audio").on({
     play: function () {
         // the audio is playing!
@@ -44,6 +45,7 @@ $("audio").on({
             .siblings("i")
             .removeClass("fa-play")
             .addClass("fa-pause");
+        $(window.audio).parents("span").siblings("h4").addClass("invisible")
     },
     pause: function () {
         // the audio is paused!
@@ -51,6 +53,7 @@ $("audio").on({
             .siblings("i")
             .removeClass("fa-pause")
             .addClass("fa-play");
+        $(window.audio).parents("span").siblings("h4").removeClass("invisible")
     },
 });
 
@@ -156,4 +159,46 @@ $(function () {
                 $(this).addClass("link-light").removeClass("link-secondary");
             }
         });
+});
+
+
+
+
+
+
+var player = document.getElementById('player');
+player.addEventListener("timeupdate", function () {
+    var currentTime = player.currentTime;
+    var duration = player.duration;
+    $('.hp_range').stop(true, true).animate({ 'width': (currentTime + .00025) / duration * 100 + '%' }, 250, 'linear');
+});
+
+
+const feature_dict = {
+    "acousticness": "red",
+    "danceability": "orange",
+    "energy": "yellow",
+    "instrumentalness": "green",
+    "liveness": "blue",
+    "speechiness": "indigo",
+    "valence": "violet",
+}
+
+
+$(function () {
+    // this will get the full URL at the address bar
+    // passes on every "a" tag
+    $(".bar").each(function () {
+        var elem = $(this).children();
+        var elem_name = elem.attr("class");
+        var progress = elem.data("value") * 100 + "%";
+        $(elem).css(
+            {
+                "backgroundColor": feature_dict[elem_name],
+                "borderRadius": "20px",
+                "height": "100%",
+                'width': progress,
+            }
+        );
+    });
 });

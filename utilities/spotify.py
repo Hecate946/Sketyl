@@ -37,6 +37,100 @@ class CONSTANTS:
     }
 
 
+class ClientCredentials:
+    def __init__(self, app):
+        self.app = app
+        self.client_id = SPOTIFY.client_id
+        self.client_secret = SPOTIFY.client_secret
+
+        self.token = None
+        app.loop.create_task(self.get_token())  # validate token
+
+    def _make_token_auth(self, client_id, client_secret):
+        auth_header = base64.b64encode(
+            (client_id + ":" + client_secret).encode("ascii")
+        )
+        return {"Authorization": "Basic %s" % auth_header.decode("ascii")}
+
+    async def get_track(self, track_id):
+        """Get a track's info from its id"""
+        return await self.make_spotify_req(
+            CONSTANTS.API_URL + "tracks/{0}".format(track_id)
+        )
+
+    async def get_track_features(self, track_id):
+        return await self.make_spotify_req(
+            CONSTANTS.API_URL + "audio-features/{0}".format(track_id)
+        )
+
+    async def get_full_track(self, track_id):
+        data = await self.get_track(track_id)
+        data["audio_features"] = await self.get_track_features(track_id)
+        return Track(data)
+
+    async def get_album(self, uri):
+        """Get an album's info from its URI"""
+        return await self.make_spotify_req(CONSTANTS.API_URL + "albums/{0}".format(uri))
+
+    async def get_artist(self, uri):
+        """Get an artist's info from its URI"""
+        return await self.make_spotify_req(
+            CONSTANTS.API_URL + "artists/{0}/top-tracks?market=US".format(uri)
+        )
+
+    async def get_playlist(self, user, uri):
+        """Get a playlist's info from its URI"""
+        return await self.make_spotify_req(
+            CONSTANTS.API_URL + "users/{0}/playlists/{1}{2}".format(user, uri)
+        )
+
+    async def get_playlist_tracks(self, uri):
+        """Get a list of a playlist's tracks"""
+        return await self.make_spotify_req(
+            CONSTANTS.API_URL + "playlists/{0}/tracks".format(uri)
+        )
+
+    async def make_spotify_req(self, url):
+        """Proxy method for making a Spotify req using the correct Auth headers"""
+        token = await self.get_token()
+        return await self.make_get(
+            url, headers={"Authorization": "Bearer {0}".format(token)}
+        )
+
+    async def make_get(self, url, headers=None):
+        """Makes a GET request and returns the results"""
+        return await self.app.http.get(url, headers=headers, res_method="json")
+
+    async def make_post(self, url, payload, headers=None):
+        """Makes a POST request and returns the results"""
+        return await self.app.http.post(
+            url, data=payload, headers=headers, res_method="json"
+        )
+
+    async def get_token(self):
+        """Gets the token or creates a new one if expired"""
+        if self.token and not await self.check_token(self.token):
+            return self.token["access_token"]
+
+        token = await self.request_token()
+        if token:
+            token["expires_at"] = int(time.time()) + token["expires_in"]
+            self.token = token
+            return self.token["access_token"]
+
+    async def check_token(self, token):
+        """Checks a token is valid"""
+        now = int(time.time())
+        return token["expires_at"] - now < 60
+
+    async def request_token(self):
+        """Obtains a token from Spotify and returns it"""
+        payload = {"grant_type": "client_credentials"}
+        headers = self._make_token_auth(self.client_id, self.client_secret)
+        r = await self.make_post(CONSTANTS.TOKEN_URL, payload=payload, headers=headers)
+        return r
+
+
 class Oauth:
     def __init__(self, app):
         self.client_id = SPOTIFY.client_id
@@ -133,7 +227,7 @@ class BaseUtils:
 
     def _get_image(self, obj):
         try:
-            return obj["images"][0]["url"]
+            return obj["images"][-1]["url"]
         except (IndexError, KeyError):
             return CONSTANTS.GREEN_ICON
 
@@ -254,7 +348,7 @@ class SpotifyUser(BaseUtils):
 
 class User:  # Current user's spotify instance
     def __init__(self, user_id, token_info, app):
-        self.user_id = user_id
+        self.id = user_id
         self.token_info = token_info
         self.client = app
         self.oauth = Oauth(app)
@@ -300,7 +394,7 @@ class User:  # Current user's spotify instance
         return cls(user_id, token_info, app)
 
     async def get_token(self):
-        return await self.oauth.get_access_token(self.user_id, self.token_info)
+        return await self.oauth.get_access_token(self.id, self.token_info)
 
     async def auth(self):
         access_token = await self.get_token()

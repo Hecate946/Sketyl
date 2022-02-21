@@ -10,6 +10,10 @@ h2 {
     color: #40434a;
     font-size: 25px;
 }
+
+hr {
+    color: #FFFFFF;
+}
 .background {
     position: relative;
     width: 100%;
@@ -69,31 +73,7 @@ h2 {
     -ms-transform: translate(-50%, -50%);
 }
 
-@media only screen and (max-width: 992px) {
-    .background h1 {
-        font-size: 50px;
-        margin-top: 5px;
-    }
-    .background h2 {
-        font-size: 20px;
-        padding: 5px 0 15px;
-    }
-    .background .btn {
-        font-size: 20px;
-        margin-bottom: 5px;
-    }
-    h1 {
-        font-size: 20px;
-    }
-    h2 {
-        font-size: 15px;
-    }
 
-}
-
-.container {
-    height: 50px;
-}
 .link-secondary {
     display: inline-block;
     padding: 20px;
@@ -116,4 +96,128 @@ h2 {
 .portrait {
     width: 200px;
     padding: 10px;
+}
+
+.cover {
+    height: 250px;
+    width: 250px;
+}
+
+
+.player {
+    display: flex;
+    align-items: center;
+    align-self: center;
+    width: 250px;
+}
+.fa-play, .fa-pause {
+    color: #FFFFFF;
+    font-size: 40px;
+    padding-right: 10px;
+}
+
+
+.hp_slide, .hp_range {
+    border-radius: 20px;
+    height:15px;
+}
+.hp_slide{
+    width: 400px;
+    background:#B3C2C8;
+}
+.hp_range{
+    width:0;
+    background:#000000;
+}
+
+.featured-song {
+    align-self: center;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    background-color: #0a2d36;
+    box-shadow: 0 0 5rem #0a2d36;
+    border-radius: 10px;
+    margin: 50px;
+    padding: 10px;
+}
+
+.featured-song > div {
+    padding: 10px;
+}
+
+.featured-song h3 {
+    color: #FFFFFF;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.featured-song a {
+    color: #69cdff;
+}
+.spotify-logo {
+    align-self: flex-start;
+}
+.spotify-logo img {
+    height: 50px;
+}
+
+.stats {
+    color: #FFFFFF;
+}
+
+.stats h1 {
+    color: #FFFFFF;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.feature-type {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
+}
+
+.bar {
+    height: 15px;
+    background-color: #B3C2C8;
+    border-radius: 20px;
+    width: 200px;
+    align-self: center;
+}
+
+.popover-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.fa-info-circle {
+    font-size: 30px;
+    float: right;
+    padding: 10px;
+}
+
+
+@media only screen and (max-width: 992px) {
+    .background h1 {
+        font-size: 50px;
+        margin-top: 5px;
+    }
+    .background h2 {
+        font-size: 20px;
+        padding: 5px 0 15px;
+    }
+    .background .btn {
+        font-size: 20px;
+        margin-bottom: 5px;
+    }
+    h1 {
+        font-size: 20px;
+    }
+    h2 {
+        font-size: 15px;
+    }
 }

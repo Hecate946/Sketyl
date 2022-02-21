@@ -5,63 +5,196 @@
 {% endblock %}
 {% block body %}
 {{super()}}
-<div>
-    <div class="background">
-        <img class="landscape" src="{{url_for('static', filename='assets/landscape.jpeg')}}">
-        <div class="content d-flex align-items-center text-center">
-            <div>
-                <h1>Sketyl</h1>
-                <h2>Spotify Statistics, Style, Satire, and Shit</h2>
-                <a href="{{url_for('spotify_connect')}}" class="btn btn-lg">Connect to Spotify</a>
-            </div>
+<div class="background">
+    <img class="landscape" src="{{url_for('static', filename='assets/landscape.jpeg')}}">
+    <div class="content d-flex align-items-center text-center">
+        <div>
+            <h1>Sketyl</h1>
+            <h2>Spotify Statistics, Style, Satire, and Shit</h2>
+            <a href="{{url_for('spotify_connect')}}" class="btn btn-lg">Connect to Spotify</a>
         </div>
     </div>
-    <div class="text-box">
-        <h1>About Sketyl</h1>
-        <h2>In case you didn't notice, Sketyl is a website. And yes, I know it looks terrible. It'll improve.
-            Hopefully... Sketyl is a 100% open source project, and was designed with utmost speed and navigational
-            simplicity as priorities.
-            The complete source code can be found at <a href="https://github.com/Hecate946/Sketyl"
-                target="_blank">https://github.com/Hecate946/Sketyl</a>
-        </h2>
-        <h1>Function</h1>
-        <h2>
-            Sketyl shows you your favorite tracks and artists, what you've listened to recently, and provides audio
-            previews for each song.
-        </h2>
-        <h1>Author Notes</h1>
-        <h2>
-            Professionalism is my forte and it shows. Doesn't it? Sketyl is a cool name no? It's a random 6 letter word
-            I came up with that happened to be for sale on namecheap for 4 bucks. Also cool because it sounds like
-            skettle,
-            which apparently is jamaican slang for prostitutes.
-            Fuck I forgot to mention that the "Recent Tracks" and the "Liked Tracks" tabs will probably crap out for
-            you.
-            Spotify hasn't approved Sketyl for that yet. Not my fault, so yeah my code isn't shitty just because you see
-            internal server errors. Well the code is sorta shitty, but that's not why it craps out. Also don't come and
-            fuck me over
-            for using someone else's photograph as a background image. Yes I mean that one up there ^. Beautiful isn't
-            it? The
-            photographer's name is Jan Erik Waider. I love his stuff.
-            if you want to check his work out, click <a
-                href="https://www.northlandscapes.com/portfolio/iceland-dark-and-monochrome" target="_blank">here.</a>
-            Or just google
-            him. I honestly couldn't care less what you do.
-            Speaking of art, do you like the logo? Yes, the one that looks more like a deformed sperm than a 16th note.
-            I drew it on the apple notes app (on my phone). I think I have a bright future as a
-            digital artist wouldn't you agree? Or maybe even a painter?
-        </h2>
-        <div class="pasted">
-            <img class="portrait" src="{{url_for('static', filename='assets/portrait.jpeg')}}">
-        </div>
-        <h1>Ahh yes. Madame Vigeé Le Brun would be proud.</h1>
+</div>
+<div class="text-box">
+    <h1>About Sketyl</h1>
+    <h2>In case you didn't notice, Sketyl is a website. And yes, I know it looks terrible. It'll improve.
+        Hopefully... Sketyl is a 100% open source project, and was designed with utmost speed and navigational
+        simplicity as priorities.
+        The complete source code can be found at <a href="https://github.com/Hecate946/Sketyl"
+            target="_blank">https://github.com/Hecate946/Sketyl</a>
+    </h2>
+    <h1>Function</h1>
+    <h2>
+        Sketyl shows you your favorite tracks and artists, what you've listened to recently, and provides audio
+        previews for each song.
+    </h2>
+    <h1>Author Notes</h1>
+    <h2>
+        Professionalism is my forte and it shows. Doesn't it? Sketyl is a cool name no? It's a random 6 letter word
+        I came up with that happened to be for sale on namecheap for 4 bucks. Also cool because it sounds like
+        skettle,
+        which apparently is jamaican slang for prostitutes.
+        Fuck I forgot to mention that the "Recent Tracks" and the "Liked Tracks" tabs will probably crap out for
+        you.
+        Spotify hasn't approved Sketyl for that yet. Not my fault, so yeah my code isn't shitty just because you see
+        internal server errors. Well the code is sorta shitty, but that's not why it craps out. Also don't come and
+        fuck me over
+        for using someone else's photograph as a background image. Yes I mean that one up there ^. Beautiful isn't
+        it? The
+        photographer's name is Jan Erik Waider. I love his stuff.
+        if you want to check his work out, click <a
+            href="https://www.northlandscapes.com/portfolio/iceland-dark-and-monochrome" target="_blank">here.</a>
+        Or just google
+        him. I honestly couldn't care less what you do.
+        Speaking of art, do you like the logo? Yes, the one that looks more like a deformed sperm than a 16th note.
+        I drew it on the apple notes app (on my phone). I think I have a bright future as a
+        digital artist wouldn't you agree? Or maybe even a painter?
+    </h2>
+    <div class="pasted">
+        <img class="portrait" src="{{url_for('static', filename='assets/portrait.jpeg')}}">
     </div>
+    <h1>Ahh yes. Madame Vigeé Le Brun would be proud.</h1>
+</div>
 
-    <footer class="border-top footer">
-        <div class="container text-center">
-            <a class="link-secondary" href="https://github.com/Hecate946/Sketyl" target="_blank">Source</a>
-            <a class="link-secondary" href="{{url_for('privacy_policy')}}">Privacy Policy</a>
-            <a class="link-secondary" href="{{url_for('faq_page')}}">FAQs</a>
+<div class="featured-song">
+    <div class="spotify-logo">
+        <img src="{{url_for('static', filename='assets/spotify_logo_white.png')}}">
+    </div>
+    <div class="title">
+        <h3>
+            Sketyl Song of The Day:
+            <a href="{{track.url}}">{{track.name}}</a>
+            by
+            {% for artist in track.artists %}
+            <a href="{{artist.url}}">{{artist.name}}</a>
+            {% endfor %}
+        </h3>
+    </div>
+    <div class="cover-box"><img src="{{track.cover}}" class="cover"></div>
+    <div class="player">
+        <div>
+            <span class="icon play-pause">
+                <i class="fa fa-play"></i>
+                <audio id="player" class="audio" src="{{track.preview}}"></audio>
+            </span>
         </div>
-    </footer>
-    {% endblock %}
+        <div class="hp_slide">
+            <div class="hp_range"></div>
+        </div>
+    </div>
+    <hr>
+    <div class="stats">
+        <h1>Track Audio Features</h1>
+        <div class="song-data">
+            <div class="feature-type">
+                <div class="popover-container">
+                    Acousticness: {{(100 * track.features['acousticness'])|round(2)}}%
+                    <span data-bs-title="Acousticness"
+                        data-bs-content="A confidence measure from 0% to 100% of whether the track is acoustic. Higher percentages represent higher confidence the track is acoustic."
+                        data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="right"
+                        data-bs-container="body">
+                        <i class="fa fa-info-circle"></i>
+                    </span>
+                </div>
+                <div class="bar">
+                    <div class="acousticness" data-value="{{track.features['acousticness']}}"></div>
+                </div>
+            </div>
+            <div class="feature-type">
+                <div class="popover-container">
+                    Danceability: {{(100 * track.features['danceability'])|round(2)}}%
+                    <span data-bs-title="Danceability"
+                        data-bs-content="Danceability describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity. A value of 0% is least danceable and 100% is most danceable."
+                        data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="right"
+                        data-bs-container="body">
+                        <i class="fa fa-info-circle"></i>
+                    </span>
+                </div>
+                <div class="bar">
+                    <div class="danceability" data-value="{{track.features['danceability']}}"></div>
+                </div>
+            </div>
+            <div class="feature-type">
+                <div class="popover-container">
+                    Energy: {{(100 * track.features['energy'])|round(2)}}%
+                    <span data-bs-title="Energy"
+                        data-bs-content="Energy is a measure from 0% to 100% and represents a perceptual measure of intensity and activity. Typically, energetic tracks feel fast, loud, and noisy. For example, death metal has high energy, while a Bach prelude scores low on the scale. Perceptual features contributing to this attribute include dynamic range, perceived loudness, timbre, onset rate, and general entropy."
+                        data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="right"
+                        data-bs-container="body">
+                        <i class="fa fa-info-circle"></i>
+                    </span>
+                </div>
+                <div class="bar">
+                    <div class="energy" data-value="{{track.features['energy']}}"></div>
+                </div>
+            </div>
+            <div class="feature-type">
+                <div class="popover-container">
+                    Instrumentalness: {{(100 * track.features['instrumentalness'])|round(2)}}%
+                    <span data-bs-title="Instrumentalness"
+                        data-bs-content='Predicts whether a track contains no vocals. "Ooh" and "aah" sounds are treated as instrumental in this context. Rap or spoken word tracks are clearly "vocal". The closer the instrumentalness value is to 100%, the greater likelihood the track contains no vocal content. Values above 50% are intended to represent instrumental tracks, but confidence is higher as the value approaches 100%.'
+                        data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="right"
+                        data-bs-container="body">
+                        <i class="fa fa-info-circle"></i>
+                    </span>
+                </div>
+                <div class="bar">
+                    <div class="instrumentalness" data-value="{{track.features['instrumentalness']}}"></div>
+                </div>
+            </div>
+            <div class="feature-type">
+                <div class="popover-container">
+                    Liveness: {{(100 * track.features['liveness'])|round(2)}}%
+                    <span data-bs-title="Liveness"
+                        data-bs-content='Detects the presence of an audience in the recording. Higher liveness values represent an increased probability that the track was performed live. A value above 80% or higher provides strong likelihood that the track is live.'
+                        data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="right"
+                        data-bs-container="body">
+                        <i class="fa fa-info-circle"></i>
+                    </span>
+                </div>
+                <div class="bar">
+                    <div class="liveness" data-value="{{track.features['liveness']}}"></div>
+                </div>
+            </div>
+            <div class="feature-type">
+                <div class="popover-container">
+                    Speechiness: {{(100 * track.features['speechiness'])|round(2)}}%
+                    <span data-bs-title="Speechiness"
+                        data-bs-content='Speechiness detects the presence of spoken words in a track. The more exclusively speech-like the recording (e.g. talk show, audio book, poetry), the closer to 100% the attribute value. Values above 66% describe tracks that are probably made entirely of spoken words. Values between 33% and 66% describe tracks that may contain both music and speech, either in sections or layered, including such cases as rap music. Values below 33% most likely represent music and other non-speech-like tracks.'
+                        data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="right"
+                        data-bs-container="body">
+                        <i class="fa fa-info-circle"></i>
+                    </span>
+                </div>
+                <div class="bar">
+                    <div class="speechiness" data-value="{{track.features['speechiness']}}"></div>
+                </div>
+            </div>
+            <div class="feature-type">
+                <div class="popover-container">
+                    Valence: {{(100 * track.features['valence'])|round(2)}}%
+                    <span data-bs-title="Valence"
+                        data-bs-content='A measure from 0% to 100% describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).'
+                        data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="right"
+                        data-bs-container="body">
+                        <i class="fa fa-info-circle"></i>
+                    </span>
+                </div>
+                <div class="bar">
+                    <div class="valence" data-value="{{track.features['valence']}}"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer class="border-top footer">
+    <div class="container text-center">
+        <a class="link-secondary" href="https://github.com/Hecate946/Sketyl" target="_blank">Source</a>
+        <a class="link-secondary" href="{{url_for('privacy_policy')}}">Privacy Policy</a>
+        <a class="link-secondary" href="{{url_for('faq_page')}}">FAQs</a>
+    </div>
+</footer>
+<script src="{{ url_for('static', filename='js/spotify.js')}}"></script>
+{% endblock %}

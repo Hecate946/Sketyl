@@ -3,15 +3,24 @@
 {% endblock %} {% block body %} {{ super() }}
 <div class="table-box bg-dark table-responsive">
     <div class="header d-flex flex-wrap">
-        <div class="p-2">
-            <h3 class="table-name">{{caption}}</h3>
-            {% if type == "top" %}
-            <div class="time-select-buttons">
-                <a href="{{ request.path }}?time_range=short_term" class="link-secondary">Four Weeks</a>
-                <a href="{{ request.path }}?time_range=medium_term" class="link-secondary">Six Months</a>
-                <a href="{{ request.path }}?time_range=long_term" class="link-secondary">Few Years</a>
+        <div class="d-flex flex-column name-logo-and-buttons">
+            <div class="d-flex name-and-logo">
+                <div class="spotify-logo-container">
+                    <img src="{{url_for('static', filename='assets/spotify_icon_white.png')}}" class="spotify-logo">
+                </div>
+                <div class="table-name-box">
+                    <h3 class="table-name">{{caption}}</h3>
+                </div>
             </div>
-            {% endif %}
+            <div>
+                {% if type == "top" %}
+                <div class="time-select-buttons">
+                    <a href="{{ request.path }}?time_range=short_term" class="link-secondary">Four Weeks</a>
+                    <a href="{{ request.path }}?time_range=medium_term" class="link-secondary">Six Months</a>
+                    <a href="{{ request.path }}?time_range=long_term" class="link-secondary">Few Years</a>
+                </div>
+                {% endif %}
+            </div>
         </div>
         <div class="ms-auto p-2 d-flex align-items-end select-box">
             <select class="form-select form-select-sm table-sort">
@@ -58,16 +67,19 @@
         <tbody>
             {% for track in tracks %}
             <tr class="rows" data-track="{{track.json}}">
-                <th scope="row">{{loop.index}}</th>
+
+                <th class="index" scope="row">
+                    <div class="overlay">
+                        <h4>{{loop.index}}</h4>
+                        <span class="icon play-pause">
+                            <i class="fa fa-play"></i>
+                            <audio class="audio" src="{{track.preview}}"></audio>
+                        </span>
+                    </div>
+                </th>
                 <td>
-                    <div class="container">
-                        <div class="overlay">
-                            <img class="cover" src="{{track.cover}}" />
-                            <span class="icon play-pause">
-                                <i class="fa fa-play"></i>
-                                <audio class="audio" src="{{track.preview}}"></audio>
-                            </span>
-                        </div>
+                    <div class="cover">
+                        <img src="{{track.cover}}" />
                     </div>
                 </td>
                 <td>

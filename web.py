@@ -66,6 +66,9 @@ class Sketyl(Quart):
         self.secret_key = secrets.token_urlsafe(64)
 
         self.current_users = {}
+        self.owner = "x7vjqlqi759vsiemiqh9ekdoa"
+
+        self.client = spotify.ClientCredentials(self)
 
     def run(self):
         super().run(host="0.0.0.0", port=3000, loop=self.loop)
@@ -144,7 +147,8 @@ async def speed_loader():
 async def home():
     user = await get_user()
     if not user:
-        return await render_template("home.html")
+        track = await app.client.get_full_track("3O7spQTdS9OZTgPhH1KgTz")
+        return await render_template("home.html", track=track)
     decades = await user.get_decades()
 
     return await render_template(
@@ -188,7 +192,7 @@ async def spotify_connect():
 
     response.set_cookie(
         "user_id",
-        str(sp_user.user_id),
+        str(sp_user.id),
         expires=datetime.utcnow() + timedelta(days=365),
     )
 
@@ -230,7 +234,7 @@ async def spotify_recent():
     )
 
 
-@app.route("/spotify/liked")
+@app.route("/spotify/liked/")
 @login_required()
 async def spotify_liked():
     user = await get_user()
@@ -254,7 +258,7 @@ async def spotify_top_tracks():
 
     return await render_template(
         "spotify/tracks.html",
-        type="recent",
+        type="top",
         tracks=tracks,
         track_ids=json.dumps([track.id for track in tracks]),
         caption="Top Tracks",
