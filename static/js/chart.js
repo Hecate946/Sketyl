@@ -38,9 +38,11 @@ $(function () {
             position: "right",
             align: "center",
             labels: {
-                fontColor: "#333",
-                fontSize: 16
-            }
+                fontColor: "#FFFFFF",
+                usePointStyle: true,
+                // fontSize: 20,
+                // boxwidth: 5
+            },
         }
     };
 
