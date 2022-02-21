@@ -1,12 +1,18 @@
+const pluralize = (text, len) => {
+    if (len === 1) {
+        return text;
+    } else {
+        return text + "s";
+    }
+};
 $(function () {
-    console.log("ran")
-
     var ctx = $("#chartcanvas");
 
     var labels = ctx.data("labels")
-    console.log(labels)
     var decades = ctx.data("decades")
     var colors = ctx.data("colors")
+
+    console.log(decades.length)
 
     var data = {
         labels: labels,
@@ -23,9 +29,7 @@ $(function () {
         tooltips: {
             callbacks: {
                 label: function (tooltipItem, data) {
-                    console.log(data)
-                    console.log(tooltipItem)
-                    return data['labels'][tooltipItem['index']] + ': ' + data['datasets'][0]['data'][tooltipItem['index']] * 2 + '%';
+                    return data['labels'][tooltipItem['index']] + ': ' + decades[tooltipItem['index']] + pluralize(" Track", decades[tooltipItem['index']]);
                 }
             }
         },

@@ -132,7 +132,7 @@ def login_required():
 
 
 async def _tasked_requests(user):
-    await user.get_decades()
+    # await user.get_decades()
     for span in spotify.CONSTANTS.TIME_RANGE_MAP.keys():
         await user.get_top_tracks(time_range=span)
         await user.get_top_artists(time_range=span)
@@ -149,19 +149,19 @@ async def speed_loader():
 
 @app.route("/")
 async def home():
-    user = await get_user()
-    if not user:
-        track = await app.client.get_full_track("3eaJHhtNsKOumLQYU7bnas")
-        return await render_template("home.html", track=track)
-    decades = await user.get_decades()
+    # user = await get_user()
+    # if not user:
+    track = await app.client.get_full_track("3eaJHhtNsKOumLQYU7bnas")
+    return await render_template("home.html", track=track)
+    # decades = await user.get_decades()
 
-    return await render_template(
-        "/spotify/charts.html",
-        decades=decades,
-        labels=json.dumps(list(decades.keys())),
-        data=json.dumps([len(decades[decade]) for decade in decades]),
-        colors=json.dumps(constants.colors[: len(decades.keys())]),
-    )
+    # return await render_template(
+    #     "/spotify/charts.html",
+    #     decades=decades,
+    #     labels=json.dumps(list(decades.keys())),
+    #     data=json.dumps([len(decades[decade]) for decade in decades]),
+    #     colors=json.dumps(constants.colors[: len(decades.keys())]),
+    # )
 
 
 @app.route("/index")

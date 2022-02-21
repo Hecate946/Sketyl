@@ -11,7 +11,6 @@
 .logout-button {
     background-color: #ef233c;
     border-color: #b90217;
-    text-align: center;
 }
 
 .logout-button:hover {
@@ -22,7 +21,11 @@
 .login-button {
     background-color: #15B8AE;
     border-color: #017b91;
+}
+
+.login-button, .logout-button {
     text-align: center;
+    margin-right: 10px;
 }
 
 .login-button:hover {
@@ -32,4 +35,11 @@
 
 .nav-link {
     font-size: 18px;
+}
+
+@media only screen and (max-width: 992px) {
+    .login-button, .logout-button {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
 }
