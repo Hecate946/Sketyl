@@ -22,7 +22,6 @@ $(function () {
 $(function () {
     $(document).on("click", ".play-pause", function () {
         var audio = $(this).children("audio");
-        console.log(audio)
         if (audio[0].paused) {
             if (window.audio !== undefined) {
                 // audio already existed, pause it.
@@ -76,7 +75,8 @@ function pause() {
 
 $(".table-sort").on("change", function () {
     var selection = $(this).val();
-    var rows = $("table tbody tr").get();
+    var tableID = "#" + $(this).data("table-id")
+    var rows = $(tableID).children("tbody").children("tr");
     rows.sort(function (a, b) {
         var trackA = $(a).data("track");
         var trackB = $(b).data("track");
@@ -141,7 +141,7 @@ $(".table-sort").on("change", function () {
     });
 
     $.each(rows, function (index, row) {
-        $("table").children("tbody").append(row);
+        $(tableID).children("tbody").append(row);
     });
 });
 

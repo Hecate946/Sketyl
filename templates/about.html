@@ -1,0 +1,46 @@
+{% extends 'index.html' %} {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/spotify/tracks.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}" />
+{{super()}} {% endblock %} {% block body %} {{super()}}
+
+<div class="text-box">
+    <h1>About Sketyl</h1>
+    <h2>
+        In case you didn't notice, Sketyl is a website. And yes, I know it looks
+        terrible. It'll improve. Hopefully... Sketyl is a 100% open source
+        project, and was designed with utmost speed and navigational simplicity
+        as priorities. The complete source code can be found at
+        <a href="https://github.com/Hecate946/Sketyl" target="_blank">https://github.com/Hecate946/Sketyl</a>
+    </h2>
+    <h1>Function</h1>
+    <h2>
+        Sketyl shows you your favorite tracks and artists, what you've listened
+        to recently, and provides audio previews for each song.
+    </h2>
+    <h1>Author Notes</h1>
+    <h2>
+        Professionalism is my forte and it shows. Doesn't it? Sketyl is a cool
+        name no? It's a random 6 letter word I came up with that happened to be
+        for sale on namecheap for 4 bucks. Also cool because it sounds like
+        skettle, which apparently is jamaican slang for prostitutes. Fuck I
+        forgot to mention that the "Recent Tracks" and the "Liked Tracks" tabs
+        will probably crap out for you. Spotify hasn't approved Sketyl for that
+        yet. Not my fault, so yeah my code isn't shitty just because you see
+        internal server errors. Well the code is sorta shitty, but that's not
+        why it craps out. Also don't come and fuck me over for using someone
+        else's photograph as a background image. Yes I mean that one up there ^.
+        Beautiful isn't it? The photographer's name is Jan Erik Waider. I love
+        his stuff. if you want to check his work out, click
+        <a href="https://www.northlandscapes.com/portfolio/iceland-dark-and-monochrome" target="_blank">here.</a>
+        Or just google him. I honestly couldn't care less what you do. Speaking
+        of art, do you like the logo? Yes, the one that looks more like a
+        deformed sperm than a 16th note. I drew it on the apple notes app (on my
+        phone). I think I have a bright future as a digital artist wouldn't you
+        agree? Or maybe even a painter?
+    </h2>
+    <div class="pasted">
+        <img class="portrait" src="{{url_for('static', filename='assets/portrait.jpeg')}}" />
+    </div>
+    <h1>Ahh yes. Madame Vigeé Le Brun would be proud.</h1>
+</div>
+{% endblock %}

@@ -37,3 +37,55 @@ def parse_duration(duration: int):
         value = "LIVE"
 
     return value
+
+
+key_signature_map = {
+    0: "C",
+    1: "C#",
+    2: "D",
+    3: "E♭",
+    4: "E",
+    5: "F",
+    6: "F#",
+    7: "G",
+    8: "A♭",
+    9: "A",
+    10: "B♭",
+    11: "B",
+}
+
+
+def readable_audio_features(features):
+    return {
+        "Key Signature": key_signature_map[features["key"]]
+        + " "
+        + ("minor" if features["mode"] == 0 else "Major"),
+        "Tempo": f"{round(features['tempo'])} BPM ({get_tempo_name(features['tempo'])})",
+    }
+
+
+def get_tempo_name(tempo):
+    if tempo < 40:
+        return "Grave"
+    if 40 <= tempo < 45:
+        return "Lento"
+    if 45 <= tempo < 55:
+        return "Largo"
+    if 55 <= tempo < 65:
+        return "Adagio"
+    if 65 <= tempo < 69:
+        return "Adagietto"
+    if 73 <= tempo < 86:
+        return "Andante"
+    if 86 <= tempo < 98:
+        return "Moderato"
+    if 98 <= tempo < 109:
+        return "Allegretto"
+    if 109 <= tempo < 132:
+        return "Allegro"
+    if 132 <= tempo < 140:
+        return "Vivace"
+    if 140 <= tempo < 177:
+        return "Presto"
+    if tempo > 177:
+        return "Prestissimo"

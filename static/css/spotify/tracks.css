@@ -59,6 +59,12 @@
   color: #edf2f4;
   width: 100%;
 }
+.table tr {
+   text-align: left;
+}
+.table th:first-child {
+  text-align: center;
+}
 
 .rows:hover {
   background-color: #ffffff20;

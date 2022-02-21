@@ -144,11 +144,11 @@ hr {
     justify-content: center;
     flex-direction: column;
     text-align: center;
-    background-color: #0a2d36;
+    background-color: #0a2025;
     box-shadow: 0 0 5rem #0a2d36;
     border-radius: 10px;
-    margin: 20px;
     padding: 10px;
+    margin: 20px;
 }
 
 .featured-song > div {
@@ -179,6 +179,16 @@ hr {
     color: #FFFFFF;
     font-size: 30px;
     font-weight: bold;
+}
+
+.text-stats {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.text-stats div {
+    padding: 20px;
 }
 
 .feature-type {

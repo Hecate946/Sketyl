@@ -23,7 +23,7 @@ from quart import (
 
 
 import config
-from utilities import http, spotify, constants
+from utilities import http, spotify, constants, utils
 
 
 # Set up our website logger
@@ -69,6 +69,10 @@ class Sketyl(Quart):
         self.owner = "x7vjqlqi759vsiemiqh9ekdoa"
 
         self.client = spotify.ClientCredentials(self)
+
+        self.jinja_env.globals.update(
+            readable_audio_features=utils.readable_audio_features
+        )
 
     def run(self):
         super().run(host="0.0.0.0", port=3000, loop=self.loop)

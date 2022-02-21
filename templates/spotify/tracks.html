@@ -23,7 +23,7 @@
             </div>
         </div>
         <div class="ms-auto p-2 d-flex align-items-end select-box">
-            <select class="form-select form-select-sm table-sort">
+            <select class="form-select form-select-sm table-sort" data-table-id="1">
                 {# Sorting by affinity only available for top tracks. Change name but still sort by rank. #}
                 {% if type == "top" %}
                 <option selected value="order">
@@ -54,7 +54,7 @@
             </select>
         </div>
     </div>
-    <table class="table align-middle">
+    <table id="1" class="table align-middle">
         <thead>
             <tr>
                 <th class="rank" scope="col">#</th>

@@ -68,7 +68,9 @@ class ClientCredentials:
         while len(track_ids) > 0:
             params = {"ids": ",".join(track_ids[:100])}
             query = urlencode(params)
-            batch = await self.make_spotify_req(CONSTANTS.API_URL + "audio-features?" + query)
+            batch = await self.make_spotify_req(
+                CONSTANTS.API_URL + "audio-features?" + query
+            )
             features.extend(batch["audio_features"])
             del track_ids[:100]
 
@@ -77,15 +79,31 @@ class ClientCredentials:
     async def get_full_track(self, track_id):
         data = await self.get_track(track_id)
         data["audio_features"] = await self.get_track_features(track_id)
-        data["artists"][0]["top_tracks"] = await self.get_artist_top_tracks(data["artists"][0]["id"])
-        features = await self.get_tracks_features([t["id"] for t in data["artists"][0]["top_tracks"]])
-        for track, feat in zip(data["artists"][0]["top_tracks"], features):
+
+        album_tracks = data["album"]["tracks"] = await self.get_album_tracks(
+            data["album"]["id"]
+        )
+
+        artist_tracks = data["artists"][0][
+            "top_tracks"
+        ] = await self.get_artist_top_tracks(data["artists"][0]["id"])
+
+        tracks_without_features = album_tracks + artist_tracks
+
+        features = await self.get_tracks_features(
+            [t["id"] for t in tracks_without_features]
+        )
+        for track, feat in zip(tracks_without_features, features):
             track["audio_features"] = feat
+
         return Track(data)
 
-    async def get_album(self, uri):
+    async def get_album_tracks(self, album_id):
         """Get an album's info from its URI"""
-        return await self.make_spotify_req(CONSTANTS.API_URL + "albums/{0}".format(uri))
+        r = await self.make_spotify_req(
+            CONSTANTS.API_URL + "albums/{0}/tracks".format(album_id)
+        )
+        return r["items"]
 
     async def get_artist_top_tracks(self, artist_id):
         """Get an artist's info from its URI"""
@@ -258,10 +276,20 @@ class BaseUtils:
             return "Public"
         return "Private"
 
+    def _release_date(self, date_str):
+        date_parts = date_str.split("-")
+        date_parts = [int(dp) for dp in date_parts]
+        if len(date_parts) == 1:
+            return date_parts[0]
+
+        date_obj = date(*date_parts)
+
+        return date_obj.__format__("%B %d, %Y")
+
 
 # Datatypes for Spotify Objects
 class Album(BaseUtils):
-    def __init__(self, data, *, index=None):
+    def __init__(self, data, *, index=None, tracks=None):
         super().__init__()
         self.id = data["id"]
         self.name = data["name"]
@@ -274,18 +302,16 @@ class Album(BaseUtils):
         self.raw = data
         self.json = json.dumps(data)
 
-        # if data.get("tracks"):
-        #     self.tracks = [
-        #         Track(dict(track, album=data)) for track in data["tracks"]["items"]
-        #     ]
+        if data.get("tracks") or tracks:
+            self.tracks = tracks or [
+                Track(dict(track, album=data), album=self) for track in data["tracks"]
+            ]
 
         self.index = index
 
 
 class Artist(BaseUtils):
-    def __init__(
-        self, data, *, index=None, related_artists=[], albums=[]
-    ):
+    def __init__(self, data, *, index=None, related_artists=[], albums=[]):
         super().__init__()
         self.id = data["id"]
         self.name = data["name"]
@@ -309,11 +335,12 @@ class Artist(BaseUtils):
 
 
 class Track(BaseUtils):
-    def __init__(self, data, *, quality="best"):
+    def __init__(self, data, *, quality="best", album=None):
         super().__init__()
         self.id = data["id"]
         self.name = data["name"]
         self.cover = self._get_image(data["album"], quality=quality)
+        self.release = self._release_date(data["album"]["release_date"])
         self.uri = "spotify:track:" + self.id
         self.url = data["external_urls"]["spotify"]
         self.popularity = data.get("popularity")
@@ -321,7 +348,7 @@ class Track(BaseUtils):
         self.raw_duration = data["duration_ms"]
         self.preview = data["preview_url"]
 
-        self.album = Album(data["album"])  # parent album
+        self.album = album or Album(data["album"])  # parent album
         self.artists = [Artist(a) for a in data["artists"]]
 
         self.raw = data
