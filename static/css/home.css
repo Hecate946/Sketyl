@@ -157,7 +157,13 @@ hr {
 
 .featured-song h3 {
     color: #FFFFFF;
-    font-size: 30px;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.featured-song h1 {
+    color: #FFFFFF;
+    font-size: 35px;
     font-weight: bold;
 }
 
@@ -188,7 +194,7 @@ hr {
 }
 
 .text-stats div {
-    padding: 20px;
+    padding: 25px;
 }
 
 .feature-type {
@@ -222,20 +228,27 @@ hr {
 @media only screen and (max-width: 992px) {
     .background h1 {
         font-size: 50px;
-        margin-top: 5px;
+        margin: 5px;
     }
     .background h2 {
-        font-size: 20px;
-        padding: 5px 0 15px;
+        display: none
     }
     .background .btn {
         font-size: 20px;
-        margin-bottom: 5px;
+        margin: 5px;
     }
     h1 {
         font-size: 20px;
     }
     h2 {
+        font-size: 15px;
+    }
+
+    .featured-song h1 {
+        font-size: 25px;
+    }
+
+    .featured-song h3 {
         font-size: 15px;
     }
 
