@@ -147,7 +147,7 @@ async def speed_loader():
 async def home():
     user = await get_user()
     if not user:
-        track = await app.client.get_full_track("3O7spQTdS9OZTgPhH1KgTz")
+        track = await app.client.get_full_track("3eaJHhtNsKOumLQYU7bnas")
         return await render_template("home.html", track=track)
     decades = await user.get_decades()
 

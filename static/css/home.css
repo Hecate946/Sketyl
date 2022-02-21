@@ -83,7 +83,7 @@ hr {
     text-shadow: 0 .05rem .1rem rgba(19, 46, 76, 0.5);
     box-shadow: inset 0 0 5rem rgba(19, 46, 76, .5);
     padding: 20px;
-    margin: 50px;
+    margin: 20px;
     border-radius: 10px;
     text-align: center;
 }
@@ -99,18 +99,26 @@ hr {
 }
 
 .cover {
-    height: 250px;
-    width: 250px;
+    height: 200px;
+    width: 200px;
 }
 
+.small-cover {
+    width: 50px;
+    height: 50px;
+}
 
+.small-cover img {
+    width: 100%;
+    height: 100%;
+}
 .player {
     display: flex;
     align-items: center;
     align-self: center;
-    width: 250px;
+    width: 200px;
 }
-.fa-play, .fa-pause {
+#main-play-pause-button {
     color: #FFFFFF;
     font-size: 40px;
     padding-right: 10px;
@@ -139,7 +147,7 @@ hr {
     background-color: #0a2d36;
     box-shadow: 0 0 5rem #0a2d36;
     border-radius: 10px;
-    margin: 50px;
+    margin: 20px;
     padding: 10px;
 }
 
@@ -219,5 +227,9 @@ hr {
     }
     h2 {
         font-size: 15px;
+    }
+
+    .header {
+        justify-content: center;
     }
 }

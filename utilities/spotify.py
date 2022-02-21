@@ -63,20 +63,36 @@ class ClientCredentials:
             CONSTANTS.API_URL + "audio-features/{0}".format(track_id)
         )
 
+    async def get_tracks_features(self, track_ids):
+        features = []
+        while len(track_ids) > 0:
+            params = {"ids": ",".join(track_ids[:100])}
+            query = urlencode(params)
+            batch = await self.make_spotify_req(CONSTANTS.API_URL + "audio-features?" + query)
+            features.extend(batch["audio_features"])
+            del track_ids[:100]
+
+        return features
+
     async def get_full_track(self, track_id):
         data = await self.get_track(track_id)
         data["audio_features"] = await self.get_track_features(track_id)
+        data["artists"][0]["top_tracks"] = await self.get_artist_top_tracks(data["artists"][0]["id"])
+        features = await self.get_tracks_features([t["id"] for t in data["artists"][0]["top_tracks"]])
+        for track, feat in zip(data["artists"][0]["top_tracks"], features):
+            track["audio_features"] = feat
         return Track(data)
 
     async def get_album(self, uri):
         """Get an album's info from its URI"""
         return await self.make_spotify_req(CONSTANTS.API_URL + "albums/{0}".format(uri))
 
-    async def get_artist(self, uri):
+    async def get_artist_top_tracks(self, artist_id):
         """Get an artist's info from its URI"""
-        return await self.make_spotify_req(
-            CONSTANTS.API_URL + "artists/{0}/top-tracks?market=US".format(uri)
+        r = await self.make_spotify_req(
+            CONSTANTS.API_URL + "artists/{0}/top-tracks?market=US".format(artist_id)
         )
+        return r["tracks"]
 
     async def get_playlist(self, user, uri):
         """Get a playlist's info from its URI"""
@@ -225,9 +241,13 @@ class BaseUtils:
     def __init__(self) -> None:
         pass
 
-    def _get_image(self, obj):
+    def _get_image(self, obj, quality="best"):
+        if quality == "fast":
+            index = -1
+        else:
+            index = 0
         try:
-            return obj["images"][-1]["url"]
+            return obj["images"][index]["url"]
         except (IndexError, KeyError):
             return CONSTANTS.GREEN_ICON
 
@@ -264,7 +284,7 @@ class Album(BaseUtils):
 
 class Artist(BaseUtils):
     def __init__(
-        self, data, *, index=None, top_tracks=[], related_artists=[], albums=[]
+        self, data, *, index=None, related_artists=[], albums=[]
     ):
         super().__init__()
         self.id = data["id"]
@@ -280,17 +300,20 @@ class Artist(BaseUtils):
         self.json = json.dumps(data)
 
         self.index = index
-        self.top_tracks = top_tracks
+
+        self.top_tracks = []
+        if data.get("top_tracks"):
+            self.top_tracks = [Track(t, quality="fast") for t in data.get("top_tracks")]
         self.related_artists = related_artists
         self.albums = albums
 
 
 class Track(BaseUtils):
-    def __init__(self, data):
+    def __init__(self, data, *, quality="best"):
         super().__init__()
         self.id = data["id"]
         self.name = data["name"]
-        self.cover = self._get_image(data["album"])
+        self.cover = self._get_image(data["album"], quality=quality)
         self.uri = "spotify:track:" + self.id
         self.url = data["external_urls"]["spotify"]
         self.popularity = data.get("popularity")
@@ -429,7 +452,7 @@ class User:  # Current user's spotify instance
     async def _format_tracks(self, tracks):
         tracks_ids = [track["id"] for track in tracks]
         feats = await self.get_audio_features(tracks_ids)
-        func = lambda x, y: Track(dict(x, audio_features=y))
+        func = lambda x, y: Track(dict(x, audio_features=y), quality="fast")
         return list(map(func, tracks, feats))
 
     @cache.cache(strategy=cache.Strategy.timed)

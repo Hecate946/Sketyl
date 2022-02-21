@@ -12,15 +12,6 @@
   border-color: #017b91;
 }
 
-.play-pause {
-    top:0;
-    left: 0;
-    display: inline-block;
-    position: absolute;
-    height: 100%;
-    width: 100%;
-}
-
 .play-pause:hover {
     cursor: pointer;
 }
@@ -81,6 +72,7 @@
 }
 .index {
   position: relative;
+  width: 66px;
 }
 
 .invisible {
@@ -109,8 +101,7 @@
   width: 100%;
 }
 
-.fa-play,
-.fa-pause {
+.small-play-button {
   opacity: 0;
   background: #00000000;
   font-size: 25px;
