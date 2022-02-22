@@ -156,7 +156,7 @@ async def home():
         return await render_template("home.html", title="Featured Song", track=track)
 
     decades = await user.get_decades()
-    top_tracks = await user.get_top_tracks(time_range="long_term")
+    top_tracks = await user.get_top_tracks()
     track = await app.client.get_full_track(top_tracks[0].id)
     genres = await user.get_top_genres()
 
@@ -165,6 +165,7 @@ async def home():
         title="Top Track",
         track=track,
         genres=list(genres.keys())[:10],
+        profile="https://sketyl.com/profile/?id=" + user.id,
         decades=decades,
         labels=json.dumps(list(decades.keys())),
         data=json.dumps([len(decades[decade]) for decade in decades]),
@@ -182,7 +183,7 @@ async def profile():
     profile = await user.get_profile()
     username = profile["display_name"]
     decades = await user.get_decades()
-    top_tracks = await user.get_top_tracks(time_range="long_term")
+    top_tracks = await user.get_top_tracks()
     track = await app.client.get_full_track(top_tracks[0].id)
     genres = await user.get_top_genres()
 

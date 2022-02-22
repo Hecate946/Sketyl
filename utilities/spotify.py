@@ -583,7 +583,7 @@ class User:  # Current user's spotify instance
         return top_artists
 
     @cache.cache(strategy=cache.Strategy.timed)
-    async def get_decades(self, time_range="long_term"):
+    async def get_decades(self, time_range="short_term"):
         data = await self.get_top_tracks(time_range=time_range)
         decade = lambda date: (int(date.split("-")[0]) // 10) * 10
         decades = defaultdict(list)
@@ -629,7 +629,7 @@ class User:  # Current user's spotify instance
     async def get_artist_top_tracks(self, artist_id):
         return await self.get(CONSTANTS.API_URL + f"artists/{artist_id}/top_tracks")
 
-    async def get_top_genres(self, limit=99, time_range="long_term"):
+    async def get_top_genres(self, limit=99, time_range="short_term"):
         data = await self.get_top_artists(limit, time_range)
         genres = []
         for artist in data:
@@ -641,7 +641,7 @@ class User:  # Current user's spotify instance
         r = await self.get(CONSTANTS.API_URL + "recommendations/available-genre-seeds")
         return r["genres"]
 
-    async def get_valid_genres(self, limit=99, time_range="long_term"):
+    async def get_valid_genres(self, limit=99, time_range="short_term"):
         genre_list_1 = await self.get_top_genres(limit, time_range)
         genre_list_2 = await self.get_genre_seeds()
         genres = [g for g in genre_list_1 if g in genre_list_2]

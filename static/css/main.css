@@ -5,6 +5,7 @@
 .profile-tag {
     display: flex;
     justify-content: start;
+    align-items: center;
     background-color: #2C3038;
     border-radius: 10px;
     margin: 20px;
@@ -12,6 +13,52 @@
     font-size: 25px;
     font-weight: bold;
     padding: 10px 20px;
+}
+
+.profile-tag h4 {
+    color: #000000;
+    font-weight: bold;
+
+}
+.profile-tag h5 {
+    color: #000000;
+    font-weight: bold;
+}
+
+#share-profile {
+    margin-left: auto;
+    color: #FFFFFF;
+    transition: 0.3s ease;
+}
+
+#share-profile:hover {
+    background-color: #485055;
+}
+
+#profile-link-box {
+    background-color: #030820;
+    border-radius: 5px;
+}
+
+#profile-link {
+    color: #c6e000;
+    font-size: 15px;
+    padding: 10px;
+}
+
+.modal-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    flex-wrap: nowrap;
+}
+
+#copy-button {
+    margin-left: auto;
+}
+
+.profile-tag .btn {
+    background-color: #9ca6ad;
 }
 
 .genres {

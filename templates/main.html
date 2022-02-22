@@ -6,11 +6,36 @@
 
 {% block body %}
 
-{% if user %}
 <div class="profile-tag">
-    {{user}}'s Spotify Profile
+    {% if user %}
+    <div>{{user}}'s Spotify Profile</div>
+    {% else %}
+    <div>Your Spotify Profile</div>
+    <button id="share-profile" type="button" class="btn button-secondary" data-bs-toggle="modal"
+        data-bs-target="#share-modal">
+        Share Profile</button>
+    <div class="modal fade" id="share-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Shareable Profile Link</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h5>Copy this link to share your Sketyl Spotify profile with your friends!</h5>
+                    <div id="profile-link-box">
+                        <h5 id="profile-link">{{profile}}</h5>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button id="copy-button" type="button" class="btn btn-secondary">Copy Link</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
 
 {{super()}}
 
