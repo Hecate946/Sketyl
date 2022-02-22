@@ -3,11 +3,23 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/tracks.css') }}" />
 {{super()}} {% endblock %}
 
+
 {% block body %}
+
+{% if user %}
+<div class="profile-tag">
+    {{user}}'s Spotify Profile
+</div>
+{% endif %}
+
 {{super()}}
 
 <div class="genres">
+    {% if user %}
+    {{user}}'s Top Genres
+    {% else %}
     Your Top Genres
+    {% endif %}
     {% for genre in genres %}
     <div class="genre">
         {{loop.index}}. {{genre|title}}
@@ -20,9 +32,15 @@
 
 <div class="decades">
     <div class="heading text-center">
+        {% if user %}
+        <h1>The music {{user}} listens to most comes from across {{decades.keys()|length}} decades. Explore their
+            favorite
+            tracks from each decade by expanding the dropdowns below.</h1>
+        {% else %}
         <h1>The music you listen to most comes from across {{decades.keys()|length}} decades. Explore your favorite
             tracks
             from each decade by expanding the dropdowns below.</h1>
+        {% endif %}
     </div>
     <div class="chart-container">
         <canvas id="chartcanvas" data-labels="{{labels}}" data-colors="{{colors}}" data-decades="{{data}}"></canvas>

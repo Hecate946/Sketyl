@@ -76,6 +76,7 @@ class ClientCredentials:
 
         return features
 
+    @cache.cache(strategy=cache.Strategy.raw)
     async def get_full_track(self, track_id):
         data = await self.get_track(track_id)
         data["audio_features"] = await self.get_track_features(track_id)

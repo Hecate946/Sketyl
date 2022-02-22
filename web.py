@@ -162,7 +162,34 @@ async def home():
 
     return await render_template(
         "main.html",
-        title="Your Top Song",
+        title="Top Track",
+        track=track,
+        genres=list(genres.keys())[:10],
+        decades=decades,
+        labels=json.dumps(list(decades.keys())),
+        data=json.dumps([len(decades[decade]) for decade in decades]),
+        colors=json.dumps(constants.colors[: len(decades.keys())]),
+    )
+
+
+@app.route("/profile/")
+async def profile():
+    user_id = request.args.get("id")
+    user = await spotify.User.from_id(user_id, app)
+    if not user:
+        return "Invalid User"
+
+    profile = await user.get_profile()
+    username = profile["display_name"]
+    decades = await user.get_decades()
+    top_tracks = await user.get_top_tracks(time_range="long_term")
+    track = await app.client.get_full_track(top_tracks[0].id)
+    genres = await user.get_top_genres()
+
+    return await render_template(
+        "main.html",
+        title=f"{username}'s Top Track",
+        user=username,
         track=track,
         genres=list(genres.keys())[:10],
         decades=decades,

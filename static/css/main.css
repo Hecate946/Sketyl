@@ -2,6 +2,18 @@
     font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 
+.profile-tag {
+    display: flex;
+    justify-content: start;
+    background-color: #2C3038;
+    border-radius: 10px;
+    margin: 20px;
+    color: #FFFFFF;
+    font-size: 30px;
+    font-weight: bold;
+    padding: 10px 20px;
+}
+
 .genres {
     align-self: center;
     display: flex;
