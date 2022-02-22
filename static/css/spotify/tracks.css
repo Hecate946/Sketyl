@@ -2,6 +2,11 @@
   font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 
+.playlist-button-box {
+  text-align: center;
+  padding: 20px;
+}
+
 .playlist-button {
   background-color: #15b8ae;
   border-color: #017b91;
@@ -16,16 +21,22 @@
     cursor: pointer;
 }
 .name-and-logo {
-  padding: 10px 0;
+  display: flex;
+  padding: 10px;
 }
 
+.header {
+  border-bottom: 1px solid white;
+  border-top: 1px solid white;
+}
 .table-box {
+  margin: 0 auto;
   width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 0 20px 20px;
 }
-
+.spotify-logo-container {
+  display: flex;
+  align-items: center;
+}
 .spotify-logo {
   width: 35px;
 }
@@ -33,31 +44,39 @@
 .table-name-box {
   display: flex;
   align-items: center;
+  flex-direction: column;
+  justify-content: start;
 }
 .table-name {
   margin: 0;
-  padding-left: 10px;
+  padding: 0 10px;
   color: #edf2f4;
 }
 
+.select-box {
+  display: flex;
+  align-items: center;
+  justify-content: right;
+  margin-left: auto;
+  padding: 5px 10px;
+}
+
 .time-select-buttons {
-  padding: 5px;
+  padding-bottom: 10px;
   color: #60778c;
 }
 
+.time-select-buttons a {
+  padding: 0 10px;
+}
 .time-select-buttons .active {
   color: #cacdd1;
-}
-
-/* add space between links */
-.time-select-buttons a:nth-child(2) {
-  padding-left: 10px;
-  padding-right: 10px;
 }
 
 .table {
   color: #edf2f4;
   width: 100%;
+  margin: 0;
 }
 .table tr {
    text-align: left;
@@ -137,14 +156,8 @@
 }
 
 @media only screen and (max-width: 992px) {
-  .name-logo-and-buttons {
-    padding: 0.5rem;
-  }
   .unseen {
     display: none;
-  }
-  .table-box {
-    padding: 20px 0;
   }
   .select-box {
     width: 100%;

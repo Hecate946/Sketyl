@@ -3,8 +3,8 @@
 {% endblock %} {% block body %} {{ super() }}
 <div class="table-box bg-dark table-responsive">
     <div class="header d-flex flex-wrap">
-        <div class="d-flex flex-column name-logo-and-buttons">
-            <div class="d-flex name-and-logo">
+        <div class="name-logo-and-buttons">
+            <div class="name-and-logo">
                 <div class="spotify-logo-container">
                     <img src="{{url_for('static', filename='assets/spotify_icon_white.png')}}" class="spotify-logo">
                 </div>
@@ -12,17 +12,15 @@
                     <h3 class="table-name">{{caption}}</h3>
                 </div>
             </div>
-            <div>
-                {% if type == "top" %}
-                <div class="time-select-buttons">
-                    <a href="{{ request.path }}?time_range=short_term" class="link-secondary">Four Weeks</a>
-                    <a href="{{ request.path }}?time_range=medium_term" class="link-secondary">Six Months</a>
-                    <a href="{{ request.path }}?time_range=long_term" class="link-secondary">Few Years</a>
-                </div>
-                {% endif %}
+            {% if type == "top" %}
+            <div class="time-select-buttons">
+                <a href="{{ request.path }}?time_range=short_term" class="link-secondary">Four Weeks</a>
+                <a href="{{ request.path }}?time_range=medium_term" class="link-secondary">Six Months</a>
+                <a href="{{ request.path }}?time_range=long_term" class="link-secondary">Few Years</a>
             </div>
+            {% endif %}
         </div>
-        <div class="ms-auto p-2 d-flex align-items-end select-box">
+        <div class="select-box">
             <select class="form-select form-select-sm table-sort" data-table-id="1">
                 {# Sorting by affinity only available for top tracks. Change name but still sort by rank. #}
                 {% if type == "top" %}
@@ -97,7 +95,7 @@
             {% endfor %}
         </tbody>
     </table>
-    <div class="d-flex align-items-center justify-content-center">
+    <div class="playlist-button-box">
         <button class="spinner-button btn btn-primary playlist-button" role="button" aria-pressed="true"
             data-track_ids="{{track_ids}}" data-type="{{type}}">
             Create Playlist

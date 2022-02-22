@@ -7,8 +7,9 @@
     justify-content: start;
     align-items: center;
     background-color: #2C3038;
+    box-shadow: 0 0 5rem #2C3038;
     border-radius: 10px;
-    margin: 20px;
+    margin: 40px 20px;
     color: #FFFFFF;
     font-size: 25px;
     font-weight: bold;
