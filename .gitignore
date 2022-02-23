@@ -5,3 +5,5 @@
 *.sock
 *.0
 config.py
+# Fallback JSON database
+db.json

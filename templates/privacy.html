@@ -1,0 +1,25 @@
+{% extends 'index.html' %} {% block head %} {{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/privacy.css') }}" />
+{% endblock %} {% block body %} {{ super() }}
+<h1>Privacy Policy</h1>
+<h2>Data Collection</h2>
+<div>
+    Your Spotify data is fetched from Spotify via the web-api for the sole purpose of providing you with website functionality.
+    Your Spotify username is stored in order to maintain your login state, and can be deleted at any time by disconnecting your account via the "Disconnect" button.
+    No additional data of any kind is collected from you.
+</div>
+<h2>Data Storage</h2>
+<div>
+    While you are logged in to Sketyl, your username is encrypted, and stored securely in a database.
+    No additional data of any kind is permanently stored.
+    I, Hecate946, have sole access to this database, and can be contacted with questions or concerns via
+    email at <a href="mailto:hecate946@gmail.com">Hecate946@gmail.com</a>
+</div>
+<h2>Cookies</h2>
+<div>
+    One session cookie, (a short unique text string), is stored in your browser to keep you logged in.
+    This cookie is deleted upon account disconnection. No additional cookies, including Third-Party cookies, are used by this website.
+    Nevertheless, cookies can be disabled and deleted at any time via your browser settings.
+    Note: Some website features may not be fully functional without cookies.
+</div>
+{% endblock %}

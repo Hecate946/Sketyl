@@ -207,7 +207,7 @@ class Oauth:
     def validate_token(self, token_info):
         """Checks a token is valid"""
         now = int(time.time())
-        return token_info["expires_at"] - now < 60
+        return now - token_info["expires_at"] < 60
 
     async def get_access_token(self, user_id, token_info):
         """Gets the token or creates a new one if expired"""
@@ -231,14 +231,7 @@ class Oauth:
             # Old one is still valid.
             token_info["refresh_token"] = refresh_token
 
-        query = """
-                INSERT INTO spotify_auth
-                VALUES ($1, $2)
-                ON CONFLICT (user_id)
-                DO UPDATE SET token_info = $2
-                WHERE spotify_auth.user_id = $1;
-                """
-        await self.client.cxn.execute(query, user_id, json.dumps(token_info))
+        await self.client.db.insert_user(user_id, token_info)
 
         return token_info
 
@@ -419,28 +412,15 @@ class User:  # Current user's spotify instance
 
     @classmethod
     async def from_id(cls, user_id, app):
-        query = """
-                SELECT token_info
-                FROM spotify_auth
-                WHERE user_id = $1;
-                """
-        token_info = await app.cxn.fetchval(query, user_id)
+        token_info = await app.db.fetch_user(user_id)
 
         if token_info:
-            token_info = json.loads(token_info)
             return cls(user_id, token_info, app)
 
     @classmethod
     async def from_token(cls, token_info, app, *, user_id=None):
         user_id = user_id or await cls._get_user_id(app, token_info)
-        query = """
-                INSERT INTO spotify_auth
-                VALUES ($1, $2)
-                ON CONFLICT (user_id)
-                DO UPDATE SET token_info = $2
-                WHERE spotify_auth.user_id = $1;
-                """
-        await app.cxn.execute(query, user_id, json.dumps(token_info))
+        await app.db.insert_user(user_id, token_info)
 
         return cls(user_id, token_info, app)
 

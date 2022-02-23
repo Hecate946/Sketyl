@@ -23,7 +23,7 @@ from quart import (
 
 
 import config
-from utilities import http, spotify, constants, utils
+from utilities import http, spotify, constants, utils, database
 
 
 # Set up our website logger
@@ -53,20 +53,12 @@ class Sketyl(Quart):
         self.loop = asyncio.get_event_loop()
         asyncio.set_event_loop(self.loop)
 
-        kwargs = {
-            "command_timeout": 60,
-            "max_size": 20,
-            "min_size": 20,
-        }
-
-        self.cxn = self.loop.run_until_complete(
-            asyncpg.create_pool(config.POSTGRES.uri, **kwargs)
-        )
-        self.loop.run_until_complete(self.initialize())
+        self.loop.run_until_complete(self.set_sessions())
+        self.db = database.DB(self.loop)
         self.secret_key = secrets.token_urlsafe(64)
 
         self.current_users = {}
-        self.owner = "x7vjqlqi759vsiemiqh9ekdoa"
+        self.owner = "x7vjqlqi759vsiemiqh9ekdoa" # Hecate946
 
         self.client = spotify.ClientCredentials(self)
 
@@ -77,20 +69,12 @@ class Sketyl(Quart):
     def run(self):
         super().run(host="0.0.0.0", port=3000, loop=self.loop)
 
-    async def initialize(self):
+    async def set_sessions(self):
         if not hasattr(self, "session"):
             self.session = aiohttp.ClientSession(loop=self.loop)
 
         if not hasattr(self, "http"):
             self.http = http.Utils(self.session)
-
-        await self.scriptexec()
-
-    async def scriptexec(self):
-        # We execute the SQL scripts to make sure we have all our tables.
-        for script in os.listdir("./scripts"):
-            with open("./scripts/" + script, "r", encoding="utf-8") as script:
-                await self.cxn.execute(script.read())
 
 
 app = Sketyl(__name__)
@@ -172,7 +156,6 @@ async def home():
         colors=json.dumps(constants.colors[: len(decades.keys())]),
     )
 
-
 @app.route("/profile/")
 async def profile():
     user_id = request.args.get("id")
@@ -207,7 +190,7 @@ async def index():
 
 @app.route("/privacy_policy")
 async def privacy_policy():
-    return ""
+    return await render_template("privacy.html")
 
 
 @app.route("/faqs")
@@ -248,11 +231,7 @@ async def spotify_disconnect():
     if not user_id:
         return "You are not logged in"
 
-    query = """
-            DELETE FROM spotify_auth
-            WHERE user_id = $1
-            """
-    await app.cxn.execute(query, user_id)
+    await app.db.delete_user(user_id)
     response = await make_response(redirect(url_for("home")))
     response.set_cookie("user_id", "", expires=0)
     app.current_users.pop(user_id, None)
