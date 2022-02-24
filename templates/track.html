@@ -4,6 +4,7 @@
 {{super()}} {% endblock %}
 {% block body %} {{super()}}
 
+{% if track %}
 <div class="featured-song">
     <div class="spotify-logo">
         <img src="{{url_for('static', filename='assets/spotify_logo_white.png')}}" />
@@ -312,4 +313,5 @@
         </table>
     </div>
 </div>
+{% endif %}
 {% endblock %}

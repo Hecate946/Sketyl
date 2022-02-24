@@ -164,10 +164,12 @@ async def profile():
         return "Invalid User"
 
     profile = await user.get_profile()
-    username = profile["display_name"]
+    username = profile.get("display_name", user.id)
     decades = await user.get_decades()
     top_tracks = await user.get_top_tracks()
-    track = await app.client.get_full_track(top_tracks[0].id)
+    track = None
+    if top_tracks:
+        track = await app.client.get_full_track(top_tracks[0].id)
     genres = await user.get_top_genres()
 
     return await render_template(
@@ -188,7 +190,7 @@ async def index():
     return await render_template("index.html")
 
 
-@app.route("/privacy_policy")
+@app.route("/privacy_policy/")
 async def privacy_policy():
     return await render_template("privacy.html")
 
