@@ -207,11 +207,10 @@ class Oauth:
     def validate_token(self, token_info):
         """Checks a token is valid"""
         now = int(time.time())
-        return now - token_info["expires_at"] < 60
+        return token_info["expires_at"] - now > 60
 
     async def get_access_token(self, user_id, token_info):
         """Gets the token or creates a new one if expired"""
-        token_info["expires_at"] = int(time.time()) + token_info["expires_in"]
         if self.validate_token(token_info):
             return token_info["access_token"]
 
@@ -231,8 +230,8 @@ class Oauth:
             # Old one is still valid.
             token_info["refresh_token"] = refresh_token
 
+        token_info["expires_at"] = int(time.time()) + token_info["expires_in"]
         await self.client.db.insert_user(user_id, token_info)
-
         return token_info
 
     async def request_access_token(self, code):
@@ -246,6 +245,7 @@ class Oauth:
         )
         if not token_info.get("access_token"):  # Something went wrong, return None
             return
+        token_info["expires_at"] = int(time.time()) + token_info["expires_in"]
         return token_info
 
 
