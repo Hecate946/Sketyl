@@ -7,7 +7,8 @@
   <meta property="og:url" content="https://sketyl.com/" />
   <meta property="og:image" content="{{url_for('static', filename='assets/logo.png')}}" />
 
-  <meta route-based name="keywords" content="spotify,stats,tracks,artists,top,ranking,wrapped,personal,genre,audio,previews,profile" >
+  <meta route-based name="keywords"
+    content="spotify,stats,tracks,artists,top,ranking,wrapped,personal,genre,audio,previews,profile">
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -48,10 +49,10 @@
               Tracks</a></li>
           <li class="nav-item"><a class="nav-link" href="{{url_for('spotify_top_artists')}}">Top
               Artists</a></li>
-          <!-- <li class="nav-item"><a class="nav-link" href="{{url_for('spotify_albums')}}">Saved Albums</a></li>
+          <!-- <li class="nav-item"><a class="nav-link" href="{{url_for('spotify_albums')}}">Saved Albums</a></li> -->
           <li class="nav-item"><a class="nav-link" href="{{url_for('spotify_playlists')}}">Saved
               Playlists</a>
-          </li> -->
+          </li>
         </ul>
         {% if not request.cookies.get("user_id") %}
         <a href="{{url_for('spotify_connect')}}" class="btn btn-primary login-button" role="button"

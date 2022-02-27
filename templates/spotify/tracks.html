@@ -95,11 +95,13 @@
             {% endfor %}
         </tbody>
     </table>
+    {% if type != "playlist" %}
     <div class="playlist-button-box">
         <button class="spinner-button btn btn-primary playlist-button" role="button" aria-pressed="true"
             data-track_ids="{{track_ids}}" data-type="{{type}}">
             Create Playlist
         </button>
     </div>
+    {% endif %}
 </div>
 {% endblock %}

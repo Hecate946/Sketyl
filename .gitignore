@@ -5,5 +5,7 @@
 *.sock
 *.0
 config.py
+/logs
+/quota
 # Fallback JSON database
 db.json

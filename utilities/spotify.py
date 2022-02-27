@@ -29,6 +29,8 @@ class CONSTANTS:
         "playlist-read-collaborative",
         "playlist-read-private",
         "playlist-modify-public",
+        # Currently playing track
+        "user-read-currently-playing",
     ]
     TIME_RANGE_MAP = {
         "short_term": "four weeks.",
@@ -690,6 +692,9 @@ class User:  # Current user's spotify instance
 
         friends = your_owners.intersection(their_owners)
         return friends
+
+    async def now_playing(self):
+        return await self.get(CONSTANTS.API_URL + f"me/player/currently-playing")
 
     async def get_track(self, track_id):
         return await self.get(CONSTANTS.API_URL + f"tracks/{track_id}")

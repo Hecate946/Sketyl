@@ -58,7 +58,7 @@ class Sketyl(Quart):
         self.secret_key = secrets.token_urlsafe(64)
 
         self.current_users = {}
-        self.owner = "x7vjqlqi759vsiemiqh9ekdoa" # Hecate946
+        self.owner = "x7vjqlqi759vsiemiqh9ekdoa"  # Hecate946
 
         self.client = spotify.ClientCredentials(self)
 
@@ -155,6 +155,7 @@ async def home():
         data=json.dumps([len(decades[decade]) for decade in decades]),
         colors=json.dumps(constants.colors[: len(decades.keys())]),
     )
+
 
 @app.route("/profile/")
 async def profile():
@@ -385,47 +386,25 @@ async def albums(album_id):
 
 
 @app.route("/spotify/playlists")
+@login_required()
 async def spotify_playlists():
-    user_id = request.cookies.get("user_id")
-
-    if not user_id:  # User is not logged in, redirect them back
-        session["referrer"] = url_for(
-            "spotify_playlists"
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    user = await spotify.User.from_id(user_id, app)
-    if not user:  # Haven't connected their account.
-        session["referrer"] = url_for(
-            "spotify_playlists"
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    data = await user.get_playlists()
-    playlists = [
-        spotify.Playlist(playlist, index=rank)
-        for rank, playlist in enumerate(data, start=1)
-    ]
-    caption = "Saved Playlists"
-    return await render_template(
-        "/spotify/playlists.html", playlists=playlists, caption=caption
-    )
+    user = await get_user()
+    if user:
+        data = await user.get_playlists()
+        playlists = [
+            spotify.Playlist(playlist, index=rank)
+            for rank, playlist in enumerate(data, start=1)
+        ]
+        caption = "Saved Playlists"
+        return await render_template(
+            "/spotify/playlists.html", playlists=playlists, caption=caption
+        )
 
 
 @app.route("/spotify/playlists/<playlist_id>")
+@login_required()
 async def playlists(playlist_id):
-    user_id = request.cookies.get("user_id")
-
-    if not user_id:  # User is not logged in to discord, redirect them back
-        session["referrer"] = url_for(
-            "playlists", playlist_id=playlist_id
-        )  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
-
-    user = await spotify.User.from_id(user_id, app)
-    if not user:  # Haven't connected their account.
-        session["referrer"] = url_for("playlists")  # So they'll send the user back here
-        return redirect(url_for("spotify_connect"))
+    user = await get_user()
 
     data = await user.get_playlist(playlist_id)
     track_ids = [t["track"]["id"] for t in data["tracks"]["items"]]
@@ -437,7 +416,10 @@ async def playlists(playlist_id):
         )
     ]
     return await render_template(
-        "spotify/tracks.html", tracks=tracks, caption=data["name"]
+        "spotify/tracks.html",
+        tracks=tracks,
+        caption=data["name"],
+        type="playlist",
     )
 
 
@@ -516,11 +498,8 @@ async def p():
 async def al():
     user_id = request.cookies.get("user_id")
     user = await spotify.User.from_id(user_id, app)
-    genres = await user.get_valid_genres()
-    data = await user.get_recommendations(
-        limit=5, seed_genres=",".join(list(genres.keys())[:5])
-    )
-    return str(data)
+    np = await user.now_playing()
+    return str(np)
 
 
 if __name__ == "__main__":

@@ -5,26 +5,27 @@ import config
 import asyncio
 import asyncpg
 
-class DB():
+
+class DB:
     """
     Attempts to create a postgres database connection,
     falls back to json.
     """
+
     def __init__(self, loop=None):
         self.loop = loop or asyncio.get_event_loop()
         self.json = None
         self.loop.run_until_complete(self.__init__db())
-        
+
     async def __init__db(self):
         try:
             self.cxn = await asyncpg.create_pool(config.POSTGRES.uri)
         except:
             # Unable to create postgres connection
             self.json = True
-        
+
         await self.scriptexec()
 
-    
     async def scriptexec(self):
         if self.json:
             if not os.path.exists("./db.json"):
@@ -43,8 +44,8 @@ class DB():
                 db[user_id] = token_info
             with open("./db.json", "w") as fp:
                 json.dump(db, fp, indent=2)
-            
-        else:    
+
+        else:
             query = """                
                     INSERT INTO spotify_auth
                     VALUES ($1, $2)
@@ -80,6 +81,7 @@ class DB():
                     WHERE user_id = $1;
                     """
             token_info = await self.cxn.fetchval(query, user_id)
-            token_info = json.loads(token_info)
+            if token_info:
+                token_info = json.loads(token_info)
 
         return token_info
