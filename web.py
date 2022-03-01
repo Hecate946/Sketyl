@@ -139,14 +139,31 @@ async def home():
         track = await app.client.get_full_track("3eaJHhtNsKOumLQYU7bnas")
         return await render_template("home.html", title="Featured Song", track=track)
 
+    np = await user.now_playing()
+    if np:
+        if np["item"]:
+            if np["item"].get("type") == "track":
+                track = await app.client.get_full_track(np["item"]["id"])
+                title = "Current Track"
+            else:
+                top_tracks = await user.get_top_tracks()
+                track = await app.client.get_full_track(top_tracks[0].id)
+                title = "Top Track"
+        else:
+            top_tracks = await user.get_top_tracks()
+            track = await app.client.get_full_track(top_tracks[0].id)
+            title = "Top Track"
+    else:
+        top_tracks = await user.get_top_tracks()
+        track = await app.client.get_full_track(top_tracks[0].id)
+        title = "Top Track"
+
     decades = await user.get_decades()
-    top_tracks = await user.get_top_tracks()
-    track = await app.client.get_full_track(top_tracks[0].id)
     genres = await user.get_top_genres()
 
     return await render_template(
         "main.html",
-        title="Top Track",
+        title=title,
         track=track,
         genres=list(genres.keys())[:10],
         profile="https://sketyl.com/profile/?id=" + user.id,
@@ -392,7 +409,7 @@ async def spotify_playlists():
     if user:
         data = await user.get_playlists()
         playlists = [
-            spotify.Playlist(playlist, index=rank)
+            spotify.Playlist(playlist, rank=rank)
             for rank, playlist in enumerate(data, start=1)
         ]
         caption = "Saved Playlists"
@@ -406,14 +423,15 @@ async def spotify_playlists():
 async def playlists(playlist_id):
     user = await get_user()
 
+    if playlist_id == "None":
+        return ""
+
     data = await user.get_playlist(playlist_id)
     track_ids = [t["track"]["id"] for t in data["tracks"]["items"]]
     features = await user.get_audio_features(track_ids[:100])
     tracks = [
-        spotify.Track(track["track"], features=af, index=rank)
-        for (rank, (track, af)) in enumerate(
-            zip(data["tracks"]["items"][:100], features), start=1
-        )
+        spotify.Track(dict(track["track"], audio_features=af))
+        for track, af in zip(data["tracks"]["items"][:100], features)
     ]
     return await render_template(
         "spotify/tracks.html",

@@ -355,7 +355,7 @@ class Track(BaseUtils):
 
 
 class Playlist(BaseUtils):
-    def __init__(self, data, *, index=None):
+    def __init__(self, data, *, rank=None):
         super().__init__()
         self.id = data["id"]
         self.name = data["name"]
@@ -376,9 +376,9 @@ class Playlist(BaseUtils):
         # ]
 
         self.raw = data
-        self.json = json.dumps(data)
+        self.json = json.dumps(dict(data, rank=rank or 0))
 
-        self.index = index
+        self.index = rank
 
 
 class SpotifyUser(BaseUtils):
@@ -581,7 +581,7 @@ class User:  # Current user's spotify instance
         offset = 0
         while playlists > 0:
             limit = playlists if playlists < 50 else 50
-            query = urlencode({"limit": limit, "offset": offset})
+            query = urlencode({"limit": limit, "offset": offset * 50})
             batch = await self.get(CONSTANTS.API_URL + "me/playlists?" + query)
             if not batch["items"]:
                 break

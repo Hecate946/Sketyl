@@ -25,10 +25,11 @@
   padding: 10px;
 }
 
-.header {
+/* .header {
   border-bottom: 1px solid white;
   border-top: 1px solid white;
-}
+} */
+
 .table-box {
   margin: 0 auto;
   width: 100%;
@@ -116,7 +117,9 @@
   align-items: center;
   justify-content: center;
 }
-
+.cover-td {
+  width: 50px;
+}
 .cover {
   width: 50px;
   height: 50px;
@@ -146,7 +149,7 @@
   font-size: 20px;
   margin: 0;
 }
-.rows:hover h4 {
+.rows:hover .number {
   opacity: 0;
 }
 
