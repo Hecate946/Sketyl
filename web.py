@@ -140,6 +140,7 @@ async def home():
         return await render_template("home.html", title="Featured Song", track=track)
 
     np = await user.now_playing()
+    zone = "short_term"
     if np:
         if np["item"]:
             if np["item"].get("type") == "track":
@@ -155,11 +156,23 @@ async def home():
             title = "Top Track"
     else:
         top_tracks = await user.get_top_tracks()
-        track = await app.client.get_full_track(top_tracks[0].id)
-        title = "Top Track"
+        if top_tracks:
+            track = await app.client.get_full_track(top_tracks[0].id)
+            title = "Top Track"
+        else:
+            zone = "long_term"
+            top_tracks = await user.get_top_tracks(time_range=zone)
+            if top_tracks:
+                track = await app.client.get_full_track(top_tracks[0].id)
+                title = "Top Track"
+            else:  # Srsly? No data.
+                track = await app.client.get_full_track("3eaJHhtNsKOumLQYU7bnas")
+                return await render_template(
+                    "home.html", title="Featured Song", track=track
+                )
 
-    decades = await user.get_decades()
-    genres = await user.get_top_genres()
+    decades = await user.get_decades(time_range=zone)
+    genres = await user.get_top_genres(time_range=zone)
 
     return await render_template(
         "main.html",
