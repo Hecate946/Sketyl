@@ -410,6 +410,7 @@ class User:  # Current user's spotify instance
         profile = await app.http.get(
             CONSTANTS.API_URL + "me", res_method="json", headers=headers
         )
+        print(profile)
         return profile["id"]
 
     @classmethod
