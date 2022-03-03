@@ -75,8 +75,10 @@ def cache(strategy=Strategy.timed, ttl=3600):
 
         def _make_key(args, kwargs):
             def _true_repr(o):
+                # print("O", o)
                 if o.__class__.__repr__ is object.__repr__:
-                    return f"<{o.__class__.__module__}.{o.__class__.__name__}>"
+                    print("ID", o.id)
+                    return f"<{o.id}.{o.__class__.__module__}.{o.__class__.__name__}>"
                 return repr(o)
 
             key = [f"{func.__module__}.{func.__name__}"]

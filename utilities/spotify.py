@@ -42,8 +42,8 @@ class CONSTANTS:
 class ClientCredentials:
     def __init__(self, app):
         self.app = app
-        self.client_id = SPOTIFY.client_id
-        self.client_secret = SPOTIFY.client_secret
+        self.id = SPOTIFY.client_id
+        self.secret = SPOTIFY.client_secret
 
         self.token = None
         app.loop.create_task(self.get_token())  # validate token
@@ -163,7 +163,7 @@ class ClientCredentials:
     async def request_token(self):
         """Obtains a token from Spotify and returns it"""
         payload = {"grant_type": "client_credentials"}
-        headers = self._make_token_auth(self.client_id, self.client_secret)
+        headers = self._make_token_auth(self.id, self.secret)
         r = await self.make_post(CONSTANTS.TOKEN_URL, payload=payload, headers=headers)
         return r
 
