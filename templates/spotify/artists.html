@@ -46,7 +46,7 @@
     <div class="parent d-flex flex-wrap justify-content-center">
         {% for artist in artists %}
         <div class="artist" data-artist="{{artist.json}}">
-            <img src="{{artist.cover}}" class="image">
+            <a href="{{artist.url}}" target="_blank"><img src="{{artist.cover}}" class="image"></a>
             <a href="{{artist.url}}" class="name">{{artist.index}}. {{artist.name}}</a>
         </div>
         {% endfor %}

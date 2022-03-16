@@ -292,7 +292,7 @@ class Album(BaseUtils):
         self.total_tracks = data["total_tracks"]
         self.cover = self._get_image(data)
         self.uri = "spotify:album:" + self.id
-
+        self.url = data["external_urls"]["spotify"]
         self.artists = [Artist(artist) for artist in data["artists"]]
 
         self.raw = data

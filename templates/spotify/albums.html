@@ -39,7 +39,7 @@
             <tr class="rows" data-album="{{album.json}}">
                 <th scope="row">{{album.index}}</th>
                 <td>
-                    <img class="cover" src="{{album.cover}}">
+                    <a href="{{album.url}}" target="_blank"><img class="cover" src="{{album.cover}}"></a>
                 </td>
                 <td>
                     <a href="{{url_for('albums', album_id=album.id)}}" class="link-light track">
