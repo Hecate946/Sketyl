@@ -56,7 +56,7 @@ $(".table-sort").on("change", function () {
             var valueB = trackB["name"].toLowerCase();
         }
 
-        else if (selection == "date") { // if a > b, then song is old
+        else if (selection == "date") {
             var valueA = new Date(trackA["album"]["release_date"]);
             var valueB = new Date(trackB["album"]["release_date"]);
 

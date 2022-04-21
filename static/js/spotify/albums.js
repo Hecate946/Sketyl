@@ -4,8 +4,7 @@ $(".sorter").on("change", function () {
     rows.sort(function (a, b) {
         var albumA = $(a).data("album");
         var albumB = $(b).data("album");
-        console.log("test");
-        console.log("selection:" + selection);
+        console.log(albumB)
 
 
         if (selection == "artist") {
@@ -34,12 +33,12 @@ $(".sorter").on("change", function () {
             var valueB = albumB["album"]["total_tracks"];
         }
 
+
         if (valueA > valueB) {
             return 1;
         } else if (valueA < valueB) {
             return -1;
         } else {
-            console.log("test")
             return 0;
         }
     });

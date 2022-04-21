@@ -59,7 +59,7 @@ class Sketyl(Quart):
         self.secret_key = secrets.token_urlsafe(64)
 
         self.current_users = {}
-        self.owner = SPOTIFY.owner_username
+        self.owner = "x7vjqlqi759vsiemiqh9ekdoa"  # Hecate946
 
         self.client = spotify.ClientCredentials(self)
 
@@ -68,7 +68,7 @@ class Sketyl(Quart):
         )
 
     def run(self):
-        super().run(host="127.0.0.1", port=56788, loop=self.loop)
+        super().run(host="0.0.0.0", port=3000, loop=self.loop)
 
     async def set_sessions(self):
         if not hasattr(self, "session"):
