@@ -6,7 +6,6 @@ import asyncpg
 import logging
 import secrets
 
-from config import SPOTIFY
 from datetime import datetime, timedelta
 from functools import wraps
 from logging.handlers import RotatingFileHandler
