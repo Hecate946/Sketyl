@@ -1,4 +1,4 @@
-// Javascript for ./templates/spotify/tracks.html
+/* Javascript for ./templates/spotify/tracks.html
 
 $(function () {
     // Generates a playlist based on data- attrs on playlist button

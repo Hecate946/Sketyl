@@ -41,49 +41,60 @@ $(".table-sort").on("change", function () {
             var valueB = trackB["artists"][0]["name"].toLowerCase();
         }
 
-        if (selection == "album") {
+        else if (selection == "album") {
             var valueA = trackA["album"]["name"].toLowerCase();
             var valueB = trackB["album"]["name"].toLowerCase();
         }
 
-        if (selection == "order") {
+        else if (selection == "order") {
             var valueA = trackA["rank"];
             var valueB = trackB["rank"];
         }
 
-        if (selection == "name") {
+        else if (selection == "name") {
             var valueA = trackA["name"].toLowerCase();
             var valueB = trackB["name"].toLowerCase();
         }
 
-        if (selection == "duration") {
+        else if (selection == "date") { // if a > b, then song is old
+            var valueA = new Date(trackA["album"]["release_date"]);
+            var valueB = new Date(trackB["album"]["release_date"]);
+
+        }
+
+        else if (selection == "duration") {
             var valueA = trackA["duration_ms"];
             var valueB = trackB["duration_ms"];
         }
 
-        if (selection == "popularity") {
+        else if (selection == "popularity") {
             var valueA = trackA["popularity"];
             var valueB = trackB["popularity"];
         }
 
-        if (selection == "tempo") {
+        else if (selection == "tempo") {
             var valueA = trackA["audio_features"]["tempo"];
             var valueB = trackB.audio_features.tempo;
         }
 
-        if (selection == "danceability") {
+        else if (selection == "danceability") {
             var valueA = trackA.audio_features.danceability;
             var valueB = trackB.audio_features.danceability;
         }
 
-        if (selection == "valence") {
+        else if (selection == "valence") {
             var valueA = trackA.audio_features.valence;
             var valueB = trackB.audio_features.valence;
         }
 
-        if (selection == "energy") {
+        else if (selection == "energy") {
             var valueA = trackA.audio_features.energy;
             var valueB = trackB.audio_features.energy;
+        }
+
+        else if (selection == "random") {
+            var valueA = Math.random();
+            var valueB = Math.random();
         }
 
         if (valueA > valueB) {

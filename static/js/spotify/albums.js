@@ -4,7 +4,8 @@ $(".sorter").on("change", function () {
     rows.sort(function (a, b) {
         var albumA = $(a).data("album");
         var albumB = $(b).data("album");
-        console.log(albumB)
+        console.log("test");
+        console.log("selection:" + selection);
 
 
         if (selection == "artist") {
@@ -12,33 +13,33 @@ $(".sorter").on("change", function () {
             var valueB = albumB["album"]["artists"][0]["name"].toLowerCase();
         }
 
-        if (selection == "order") {
+        else if (selection == "order") {
             var valueA = albumA["rank"];
             var valueB = albumB["rank"];
         }
 
-        if (selection == "name") {
+        else if (selection == "name") {
             var valueA = albumA["album"]["name"].toLowerCase();
             var valueB = albumB["album"]["name"].toLowerCase();
         }
 
-        if (selection == "date") { // how to do?
+        else if (selection == "date") { // how to do?
             var valueA = new Date(albumA["album"]["release-date"]);
             var valueB = new Date(albumB["album"]["release-date"]);
             console.log(valueA)
         }
 
-        if (selection == "tracks") {
+        else if (selection == "tracks") {
             var valueA = albumA["album"]["total_tracks"];
             var valueB = albumB["album"]["total_tracks"];
         }
-
 
         if (valueA > valueB) {
             return 1;
         } else if (valueA < valueB) {
             return -1;
         } else {
+            console.log("test")
             return 0;
         }
     });

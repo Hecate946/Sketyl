@@ -12,5 +12,5 @@ class POSTGRES:
 
 class SPOTIFY:
     client_id = "go to spotify dev portal and get"
-    client_secret = "dito"
+    client_secret = "ditto"
     redirect_uri = BASE_WEB_URL + "spotify/connect"  # Add this as redirect uri
